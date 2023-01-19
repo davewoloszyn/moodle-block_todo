@@ -31,7 +31,7 @@ use \core\persistent;
 /**
  * Persistent model representing a single todo item on the user's list.
  */
-class item extends persistent {
+class duedate extends persistent {
 
     /** Table to store this persistent model instances. */
     const TABLE = 'block_todo';
@@ -42,28 +42,6 @@ class item extends persistent {
      * @param int $duedate The due date to group by (optional)
      * @return array
      */
-    public static function get_my_todo_items($duedate = null) {
-        global $USER, $DB;
-
-        $params = [
-            'usermodified' => $USER->id,
-        ];
-
-        if($duedate){
-            $params['duedate'] = $duedate;
-        }
-
-        //return $DB->get_records(static::TABLE, $params, 'timecreated');
-        return static::get_records($params, 'duedate', 'ASC');
-
-    }
-
-    /**
-     * Return todo items for the current user.
-     *
-     * @param int $duedate The due date to filter by
-     * @return array
-     */
     public static function get_my_todo_duedates() {
         global $USER, $DB;
 
@@ -71,7 +49,7 @@ class item extends persistent {
             'usermodified' => $USER->id,
         ];
 
-        return $DB->get_records_menu(static::TABLE, $params, 'timecreated', 'id, duedate');
+        return static::get_records($params, 'duedate', 'ASC');
 
     }
 
@@ -82,22 +60,9 @@ class item extends persistent {
      */
     protected static function define_properties() {
         return [
-            'todotext' => [
-                'type' => PARAM_TEXT,
-            ],
             'duedate' => [
                 'type' => PARAM_INT,
-                'required' => false,
-                'default' => null,
-                'null' => true,
-            ],
-            'done' => [
-                'type' => PARAM_BOOL,
-                'default' => false,
-            ],
-            'id' => [
-                'type' => PARAM_INT,
-                'required' => false,
+                'required' => true,
                 'default' => null,
                 'null' => true,
             ]

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Provides {@link block_todo\external\add_item} trait.
+ * Provides {@link block_todo\external\edit_item} trait.
  *
  * @package     block_todo
  * @category    external
@@ -35,17 +35,18 @@ use external_value;
 require_once($CFG->libdir.'/externallib.php');
 
 /**
- * Trait implementing the external function block_todo_add_item.
+ * Trait implementing the external function block_todo_edit_item.
  */
-trait add_item {
+trait edit_item {
 
     /**
      * Describes the structure of parameters for the function.
      *
      * @return external_function_parameters
      */
-    public static function add_item_parameters() {
+    public static function edit_item_parameters() {
         return new external_function_parameters([
+            'id' => new external_value(PARAM_INT, 'Id of item'),
             'todotext' => new external_value(PARAM_TEXT, 'Item text describing what is to be done'),
             'duedate' => new external_value(PARAM_INT, 'Due date of item'),
         ]);
@@ -57,7 +58,7 @@ trait add_item {
      * @param string $todotext Item text
      * @param int $duedate Due date
      */
-    public static function add_item($todotext, $duedate) {
+    public static function edit_item($id, $todotext, $duedate) {
         global $USER, $PAGE;
 
         $context = context_user::instance($USER->id);
@@ -66,11 +67,10 @@ trait add_item {
 
         // Task name.
         $todotext = strip_tags($todotext);
-        //$params = self::validate_parameters(self::add_item_parameters(), compact('todotext'));
-        $params = self::validate_parameters(self::add_item_parameters(), ['todotext' => $todotext, 'duedate' => $duedate]);
+        $params = self::validate_parameters(self::edit_item_parameters(), ['id' => $id, 'todotext' => $todotext, 'duedate' => $duedate]);
 
         $item = new item(null, (object) $params);
-        $item->create();
+        $item->update();
 
         $itemexporter = new item_exporter($item, ['context' => $context]);
 
@@ -82,7 +82,7 @@ trait add_item {
      *
      * @return external_single_structure
      */
-    public static function add_item_returns() {
+    public static function edit_item_returns() {
         return item_exporter::get_read_structure();
     }
 }

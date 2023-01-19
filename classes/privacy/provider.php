@@ -58,6 +58,7 @@ class provider implements
            'timecreated' => 'privacy:metadata:db:blocktodo:timecreated',
            'timemodified' => 'privacy:metadata:db:blocktodo:timemodified',
            'todotext' => 'privacy:metadata:db:blocktodo:todotext',
+           'duedate' => 'privacy:metadata:db:blocktodo:duedate',
            'done' => 'privacy:metadata:db:blocktodo:done',
         ], 'privacy:metadata:db:blocktodo');
 
@@ -104,7 +105,7 @@ class provider implements
         $user = $contextlist->get_user();
 
         $items = $DB->get_records('block_todo', ['usermodified' => $user->id], 'timecreated DESC',
-            'id, timecreated, timemodified, todotext, done');
+            'id, timecreated, timemodified, todotext, duedate, done');
 
         foreach ($items as &$item) {
             unset($item->id);

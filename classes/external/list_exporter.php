@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use renderer_base;
 use core\external\exporter;
+use stdClass;
 
 /**
  * Exporter of the todo list items.
@@ -59,6 +60,11 @@ class list_exporter extends exporter {
                 'multiple' => true,
                 'optional' => false,
             ],
+            'duedates' => [
+                'type' => item_exporter::read_properties_definition(),
+                'multiple' => true,
+                'optional' => false,
+            ]
         ];
     }
 
@@ -73,6 +79,7 @@ class list_exporter extends exporter {
         return [
             'context' => 'context',
             'items' => 'block_todo\item[]',
+            'duedates' => 'block_todo\duedate[]',
         ];
     }
 
@@ -84,15 +91,42 @@ class list_exporter extends exporter {
      */
     protected function get_other_values(renderer_base $output) {
 
-        $items = [];
+        $duedates = [];
+        $datesadded = [];
 
-        foreach ($this->related['items'] as $item) {
-            $itemexporter = new item_exporter($item, ['context' => $this->related['context']]);
-            $items[] = $itemexporter->export($output);
+        foreach ($this->related['duedates'] as $duedate) {
+
+            $items = [];
+
+            foreach ($this->related['items'] as $item) {
+
+                if($duedate->get('duedate') === $item->get('duedate') ){
+
+                    $itemexporter = new item_exporter($item, ['context' => $this->related['context']]);
+                    $items[] = $itemexporter->export($output);
+                }
+            }
+
+            if (count($items) > 0) {
+
+                $date = $duedate->get('duedate') ?? null;
+                $duedateformatted = $date ? date("D j M", $date) : 'General';
+
+                $data = new stdClass();
+                $data->duedate = $date;
+                $data->duedateformatted = $duedateformatted;
+                $data->nesteditems = $items;
+
+                if (!in_array($date, $datesadded)) {
+                    $duedates[] = $data;
+                    $datesadded[] = $date;
+                }
+            }
         }
 
         return [
             'items' => $items,
+            'duedates' => $duedates,
         ];
     }
 }

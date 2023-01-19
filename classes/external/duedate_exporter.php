@@ -15,17 +15,44 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Provides {@link block_todo\external\item_exporter} class.
  *
  * @package     block_todo
  * @copyright   2018 David Mudrák <david@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace block_todo\external;
+
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'block_todo';
-$plugin->release = '2.0.0';
-$plugin->version = 2023011620;
-$plugin->requires = 2017051500;
-$plugin->maturity = MATURITY_STABLE;
+use \block_todo\duedate;
+use \core\external\persistent_exporter;
+
+/**
+ * Exporter of a single todo list item.
+ */
+class duedate_exporter extends persistent_exporter {
+
+    /**
+     * Returns the specific class the persistent should be an instance of.
+     *
+     * @return string
+     */
+    protected static function define_class() {
+        return duedate::class;
+    }
+
+    /**
+     * Returns a list of objects that are related.
+     *
+     * We need the context to be used when formatting the todotext field.
+     *
+     * @return array
+     */
+    protected static function define_related() {
+        return [
+            'context' => 'context',
+        ];
+    }
+}

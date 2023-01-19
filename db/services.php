@@ -58,4 +58,15 @@ $functions = [
         'loginrequired' => true,
         'ajax' => true,
     ],
+
+    'block_todo_edit_item' => [
+        'classname' => 'block_todo\external\api',
+        'methodname' => 'edit_item',
+        'classpath' => '',
+        'description' => 'Edit the given item in the todo list',
+        'type' => 'write',
+        'capabilities' => 'block/todo:myaddinstance',
+        'loginrequired' => true,
+        'ajax' => true,
+    ],
 ];

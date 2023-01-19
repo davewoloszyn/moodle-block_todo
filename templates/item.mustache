@@ -22,11 +22,16 @@
     Renders a single todo item. See template block_todo/content for details.
 }}
 
-<li data-item="{{id}}" class="list-group-item {{#done}}text-muted muted{{/done}}" style="clear:both">
-    {{#done}} <i class="fa fa-check-square" aria-hidden="true"></i> {{/done}}
-    {{^done}} <i class="fa fa-square-o" aria-hidden="true"></i> {{/done}}
-    <span>{{todotext}}</span>
-    <button data-control="delete" type="button" class="close" aria-label="{{#str}} delete {{/str}}">
-        <span aria-hidden="true">&times;</span>
-    </button>
+<li data-item="{{id}}" class="list-group-item d-flex {{#done}}text-muted muted{{/done}}" style="clear:both">
+    <div class="mr-2" data-control="toggle" role="button" title="{{#str}} toggle, block_todo {{/str}}" aria-label="{{#str}} toggle, block_todo {{/str}}">
+        {{#done}} <i class="fa fa-check-square" aria-hidden="true"></i> {{/done}}
+        {{^done}} <i class="fa fa-square-o" aria-hidden="true"></i> {{/done}}
+    </div>
+    <div>
+        {{todotext}}{{#overdue}}<span class="badge badge-pill badge-danger ml-1 float-right">{{#str}} overdue, block_timeline {{/str}}</span>{{/overdue}}
+    </div>
+    <div class="ml-auto" data-control="actions" data-id="{{id}}" data-text="{{todotext}}" data-duedate="{{duedate}}">
+        <i class="icon fa fa-cog fa-fw " title="{{#str}} edit {{/str}}" role="button" aria-label="{{#str}} edit {{/str}}" data-control="edit"></i>
+        <i class="icon fa fa-trash fa-fw " title="{{#str}} delete {{/str}}" role="button" aria-label="{{#str}} delete {{/str}}" data-control="delete"></i>
+    </div>
 </li>

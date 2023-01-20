@@ -49,17 +49,12 @@ class list_exporter extends exporter {
     }
 
     /**
-     * Return the list of additional properties.
+     * Return the list of additional properties (used in get_other_values).
      *
      * @return array
      */
     protected static function define_other_properties() {
         return [
-            'items' => [
-                'type' => item_exporter::read_properties_definition(),
-                'multiple' => true,
-                'optional' => false,
-            ],
             'duedates' => [
                 'type' => item_exporter::read_properties_definition(),
                 'multiple' => true,
@@ -69,7 +64,7 @@ class list_exporter extends exporter {
     }
 
     /**
-     * Returns a list of objects that are related.
+     * Returns a list of objects that are related (used in block_todo).
      *
      * We need the context to be used when formatting the todotext field.
      *
@@ -92,6 +87,7 @@ class list_exporter extends exporter {
     protected function get_other_values(renderer_base $output) {
 
         $duedates = [];
+        $items = [];
         $datesadded = [];
 
         foreach ($this->related['duedates'] as $duedate) {
@@ -132,7 +128,6 @@ class list_exporter extends exporter {
         }
 
         return [
-            'items' => $items,
             'duedates' => $duedates,
         ];
     }

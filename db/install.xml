@@ -12,6 +12,7 @@
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Timestamp of when the item was last modified."/>
         <FIELD NAME="todotext" TYPE="char" LENGTH="1333" NOTNULL="true" SEQUENCE="false" COMMENT="The text of the todo item"/>
         <FIELD NAME="done" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Flag indicating the status of the item. 1 means it has been done."/>
+        <FIELD NAME="duedate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Timestamp of when item is due"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

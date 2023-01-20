@@ -15,17 +15,29 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Function to upgrade block_todo.
  *
  * @package     block_todo
+ * @category    external
  * @copyright   2018 David Mudrák <david@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+function xmldb_block_todo_upgrade($oldversion) {
+    global $DB;
 
-$plugin->component = 'block_todo';
-$plugin->release = '2.0.0';
-$plugin->version = 2023011600;
-$plugin->requires = 2017051500;
-$plugin->maturity = MATURITY_STABLE;
+    $dbman = $DB->get_manager ();
+    $table = new xmldb_table('block_todo');
+
+    if ($oldversion < 2023011600) {
+
+        $field = new xmldb_field('duedate', XMLDB_TYPE_INTEGER, '10', null, null, null, 0, null);
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_plugin_savepoint(true, 2023011600, 'block', 'todo');
+    }
+
+    return true;
+}

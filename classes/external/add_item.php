@@ -66,7 +66,6 @@ trait add_item {
 
         // Task name.
         $todotext = strip_tags($todotext);
-        //$params = self::validate_parameters(self::add_item_parameters(), compact('todotext'));
         $params = self::validate_parameters(self::add_item_parameters(), ['todotext' => $todotext, 'duedate' => $duedate]);
 
         $item = new item(null, (object) $params);

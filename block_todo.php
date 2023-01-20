@@ -64,23 +64,6 @@ class block_todo extends block_base {
         $items = block_todo\item::get_my_todo_items();
         $duedates = block_todo\duedate::get_my_todo_duedates();
 
-        // $items = [
-        //     [
-        //         'duedate' => 1673481600,
-        //         'items' => block_todo\item::get_my_todo_items(1673481600)
-        //     ],
-        //     [
-        //         'duedate' => 1674172800,
-        //         'items' => block_todo\item::get_my_todo_items(1674172800)
-        //     ],
-        // ];
-
-        // echo "<pre>";
-        // print_r($items);
-        // echo "<pre>";
-
-
-
         // Prepare the exporter of the todo items list.
         $list = new block_todo\external\list_exporter([
             'instanceid' => $this->instance->id,

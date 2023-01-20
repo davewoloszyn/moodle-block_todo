@@ -1,5 +1,10 @@
 # CHANGES #
 
+## 2.0.0 ##
+
+* Ability to edit items
+* Ability to assign a due date
+
 ## 1.1.0 ##
 
 * Privacy API implementation.

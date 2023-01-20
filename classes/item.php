@@ -53,25 +53,7 @@ class item extends persistent {
             $params['duedate'] = $duedate;
         }
 
-        //return $DB->get_records(static::TABLE, $params, 'timecreated');
         return static::get_records($params, 'duedate', 'ASC');
-
-    }
-
-    /**
-     * Return todo items for the current user.
-     *
-     * @param int $duedate The due date to filter by
-     * @return array
-     */
-    public static function get_my_todo_duedates() {
-        global $USER, $DB;
-
-        $params = [
-            'usermodified' => $USER->id,
-        ];
-
-        return $DB->get_records_menu(static::TABLE, $params, 'timecreated', 'id, duedate');
 
     }
 

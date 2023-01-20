@@ -110,10 +110,17 @@ class list_exporter extends exporter {
             if (count($items) > 0) {
 
                 $date = $duedate->get('duedate') ?? null;
-                $duedateformatted = $date ? date("D j M", $date) : 'General';
+                $now = time() - 86400;
+                $duedateformatted = $date ? date("D, j M", $date) : 'General';
+                $overdue = false;
+                if ($date) {
+
+                    $overdue = ($date > $now) ? false : true;
+                }
 
                 $data = new stdClass();
                 $data->duedate = $date;
+                $data->overdue = $overdue ;
                 $data->duedateformatted = $duedateformatted;
                 $data->nesteditems = $items;
 

@@ -78,7 +78,7 @@ define([
      * Run the controller.
      *
      */
-    TodoControl.prototype.main = function () {
+    TodoControl.prototype.main = function() {
         var self = this;
 
         self.addForm = self.region.find('[data-control="addform"]').first();
@@ -86,7 +86,6 @@ define([
         self.addDueDateInput = self.addForm.find('.block_todo_duedate');
         self.addSubmitButton = self.addForm.find('.block_todo_submit');
         self.itemsList = self.region.find('.list-wrapper');
-        //self.itemsList = self.region.find('.list-group-item');
 
         self.initAddFeatures();
         self.initEditFeatures();
@@ -115,28 +114,22 @@ define([
      *
      * @method
      */
-    TodoControl.prototype.initEditFeatures = function () {
+    TodoControl.prototype.initEditFeatures = function() {
         var self = this;
 
         // Toggle item completion.
         self.itemsList.on('click', '[data-control="toggle"]', function(e) {
-            //e.preventDefault();
-           //e.stopPropagation();
             var id = $(e.currentTarget).parent().attr('data-item');
             self.toggleItem(id);
         });
         // Delete item.
         self.itemsList.on('click', '[data-control="delete"]', function(e) {
-            //e.preventDefault();
-            //e.stopPropagation();
             var id = $(e.currentTarget).parent().attr('data-id');
             var text = $(e.currentTarget).parent().attr('data-text');
             self.deleteItem(e, id, text);
         });
         // Edit item.
         self.itemsList.on('click', '[data-control="edit"]', function(e) {
-            //e.preventDefault();
-            //e.stopPropagation();
             var id = $(e.currentTarget).parent().attr('data-id');
             var text = $(e.currentTarget).parent().attr('data-text');
             var duedate = $(e.currentTarget).parent().attr('data-duedate');
@@ -150,12 +143,17 @@ define([
      * @method
      * @return {Deferred}
      */
-    TodoControl.prototype.addNewTodo = function () {
+    TodoControl.prototype.addNewTodo = function() {
         var self = this;
-        var todotext = $.trim(self.addTextInput.val());
-        var duedate = dateToTimestamp(self.addDueDateInput.val());
+        var todoText = $.trim(self.addTextInput.val());
+        var duedate = null;
 
-        if (!todotext) {
+        // If there is a due date, convert it.
+        if (self.addDueDateInput.val()) {
+            duedate = dateToTimestamp(self.addDueDateInput.val());
+        }
+
+        if (!todoText) {
             return Str.get_string('placeholdermore', 'block_todo').then(function(text) {
                 self.addTextInput.prop('placeholder', text);
                 return $.Deferred().resolve();
@@ -167,7 +165,7 @@ define([
         return Ajax.call([{
             methodname: 'block_todo_add_item',
             args: {
-                todotext: todotext,
+                todotext: todoText,
                 duedate: duedate,
             }
 
@@ -184,7 +182,7 @@ define([
             });
 
         }).then(function(item) {
-            self.itemsList.find('[data-duedategroup="' + duedate + '"]').prepend(item);
+            addDategroup(self, duedate, item);
             self.addTextInput.val('');
             self.addTextInput.prop('disabled', false);
             self.addTextInput.focus();
@@ -193,18 +191,57 @@ define([
     };
 
     /**
+     * Nest the item inside a date group, or create one if it doesn't exist.
+     *
+     * @param {object} list Outer list of duedates
+     * @param {int} duedate 10 digit timestamp
+     * @param {object} item HTML of item to insert
+     */
+    function addDategroup(list, duedate, item) {
+
+        var formattedDate = '';
+
+        // If there is no duedate, set it to 'General'.
+        if (!duedate) {
+            formattedDate = 'General';
+            duedate = '';
+        } else {
+            formattedDate = timestampToFormattedDate(duedate);
+        }
+
+        var attribute = '[data-duedategroup="' + duedate + '"]';
+
+        // Prepend the item if the dategroup exists.
+        if (list.itemsList.find(attribute).length) {
+            list.itemsList.find(attribute).find('.list-group').prepend(item);
+        } else {
+            var html = '';
+            html += '<div data-duedategroup="' + duedate + '">';
+            html += '<h5 class="mt-3 h6">' + formattedDate + '</h5>';
+            html += '<ul class="list-group unstyled">';
+            html += item;
+            html += '</ul>';
+            html += '</div>';
+
+            list.itemsList.prepend(html);
+        }
+
+    }
+
+    /**
      * Toggle the done status of the given item.
      *
      * @method
      * @param {int} id The item id
      * @return {Deferred}
      */
-    TodoControl.prototype.toggleItem = function (id) {
-        var self = this;
+    TodoControl.prototype.toggleItem = function(id) {
 
         if (!id) {
             return $.Deferred().resolve();
         }
+
+        var self = this;
 
         return Ajax.call([{
             methodname: 'block_todo_toggle_item',
@@ -238,7 +275,11 @@ define([
      * @param {int} duedate The event
      * @return {Deferred}
      */
-    TodoControl.prototype.editItem = function (e, id, text, duedate) {
+    TodoControl.prototype.editItem = function(e, id, text, duedate) {
+
+        if (!id) {
+            return $.Deferred().resolve();
+        }
 
         var self = this;
         var trigger = $(e.currentTarget);
@@ -263,15 +304,15 @@ define([
             modal.getRoot().on(ModalEvents.save, function() {
 
                 var modalBody = modal.getBody();
-                var newtext = $.trim(modalBody.find('.block_todo_edit_text').val());
-                var newduedate = dateToTimestamp(modalBody.find('.block_todo_edit_duedate').val());
+                var newText = $.trim(modalBody.find('.block_todo_edit_text').val());
+                var newDuedate = dateToTimestamp(modalBody.find('.block_todo_edit_duedate').val());
 
                 return Ajax.call([{
                     methodname: 'block_todo_edit_item',
                     args: {
                         id: id,
-                        todotext: newtext,
-                        duedate: newduedate,
+                        todotext: newText,
+                        duedate: newDuedate,
                     }
 
                 }])[0].fail(function(reason) {
@@ -299,8 +340,8 @@ define([
 
             // Show the modal.
             modal.show();
-
         });
+        return $.Deferred().resolve();
     };
 
     /**
@@ -357,6 +398,7 @@ define([
             // Show the modal.
             modal.show();
         });
+        return $.Deferred().resolve();
     };
 
     /**
@@ -365,8 +407,8 @@ define([
      * @param {string} date date string
      * @return {int} 10 digit timestamp
      */
-        function dateToTimestamp(date) {
-            return Date.parse(date) / 1000;
+    function dateToTimestamp(date) {
+        return Date.parse(date) / 1000;
     }
 
     /**
@@ -375,16 +417,29 @@ define([
      * @param {int} timestamp 10 digit timestamp
      * @return {string} YYYY-MM-DD
      */
-        function timestampToDate(timestamp) {
+    function timestampToDate(timestamp) {
 
-            const date = new Date(timestamp * 1000);
-            const datevalues = [
-                date.getFullYear(),
-                ("0" + date.getMonth()+1).slice(-2),
-                ("0" + date.getDate()).slice(-2),
-            ];
+        const date = new Date(timestamp * 1000);
+        const datevalues = [
+            date.getFullYear(),
+            ("0" + date.getMonth()+1).slice(-2),
+            ("0" + date.getDate()).slice(-2),
+        ];
 
         return datevalues[0] + '-' + datevalues[1] + '-' + datevalues[2];
+    }
+
+    /**
+     * Take a 10 digit timestamp and convert to date format like Mon 1 Jan.
+     *
+     * @param {int} timestamp 10 digit timestamp
+     * @return {string} YYYY-MM-DD
+     */
+    function timestampToFormattedDate(timestamp) {
+
+        var options = {weekday: 'short', month: 'short', day: 'numeric'};
+        const date = new Date(timestamp * 1000);
+        return date.toLocaleDateString('en-au', options);
     }
 
     return {

@@ -46,4 +46,5 @@ class api extends external_api {
     use toggle_item;
     use delete_item;
     use edit_item;
+    use refresh_items;
 }

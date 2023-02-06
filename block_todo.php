@@ -75,7 +75,6 @@ class block_todo extends block_base {
 
         // Render the list using a template and exported data.
         $this->content->text = $OUTPUT->render_from_template('block_todo/content', $list->export($OUTPUT));
-
         return $this->content;
     }
 
@@ -86,7 +85,8 @@ class block_todo extends block_base {
 
         parent::get_required_javascript();
         $this->page->requires->js_call_amd('block_todo/control', 'init', [
-            'instanceid' => $this->instance->id
+            'instanceid' => $this->instance->id,
+            'contextid' => $this->context->id,
         ]);
     }
 

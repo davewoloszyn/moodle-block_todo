@@ -58,7 +58,7 @@ class list_exporter extends exporter {
             'duedates' => [
                 'type' => item_exporter::read_properties_definition(),
                 'multiple' => true,
-                'optional' => false,
+                'optional' => true,
             ]
         ];
     }

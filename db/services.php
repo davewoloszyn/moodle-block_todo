@@ -69,4 +69,15 @@ $functions = [
         'loginrequired' => true,
         'ajax' => true,
     ],
+
+    'block_todo_refresh_items' => [
+        'classname' => 'block_todo\external\api',
+        'methodname' => 'refresh_items',
+        'classpath' => '',
+        'description' => 'Refresh the todo list',
+        'type' => 'write',
+        'capabilities' => 'block/todo:myaddinstance',
+        'loginrequired' => true,
+        'ajax' => true,
+    ],
 ];

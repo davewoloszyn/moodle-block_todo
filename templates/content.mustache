@@ -57,6 +57,7 @@
 
             <div class="input-group-append">
                 <button class="btn btn-primary block_todo_submit" type="button">{{#str}} add {{/str}}</button>
+                <button class="btn btn-secondary block_todo_refresh" type="button">Refresh</button>
             </div>
         </div>
     </form>
@@ -77,5 +78,12 @@
                 </ul>
             </div>
         {{/duedates}}
+    </div>
+
+   {{! Testing area }}
+    <div class="items-list">
+        {{#items}}
+            {{>block_todo/item}}
+        {{/items}}
     </div>
 </div>

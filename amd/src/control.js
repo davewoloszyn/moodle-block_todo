@@ -48,8 +48,9 @@ define([
      * Initializes the block controls.
      *
      * @param {int} instanceid The instance id
+     * @param {int} contextid
      */
-    function init(instanceid) {
+    function init(instanceid, contextid) {
         Log.debug('block_todo/control: initializing controls of the todo block instance ' + instanceid);
 
         var region = $('[data-region="block_todo-instance-' + instanceid +'"]').first();
@@ -59,7 +60,7 @@ define([
             return;
         }
 
-        var control = new TodoControl(region);
+        var control = new TodoControl(region, instanceid, contextid);
         control.main();
     }
 
@@ -68,10 +69,14 @@ define([
      *
      * @constructor
      * @param {jQuery} region
+     * @param {int} instanceid
+     * @param {int} contextid
      */
-    function TodoControl(region) {
+    function TodoControl(region, instanceid, contextid) {
         var self = this;
         self.region = region;
+        self.instanceid = instanceid;
+        self.contextid = contextid;
     }
 
     /**
@@ -87,8 +92,29 @@ define([
         self.addSubmitButton = self.addForm.find('.block_todo_submit');
         self.itemsList = self.region.find('.list-wrapper');
 
+        self.refreshButton = self.region.find('.block_todo_refresh');
+
         self.initAddFeatures();
         self.initEditFeatures();
+        self.initRefresh();
+    };
+
+    /**
+     * Initialize refresh of items.
+     *
+     * @method
+     */
+    TodoControl.prototype.initRefresh = function () {
+        var self = this;
+
+        self.addForm.on('submit', function(e) {
+            e.preventDefault();
+            self.addNewTodo();
+        });
+
+        self.refreshButton.on('click', function() {
+           self.refreshTodo();
+        });
     };
 
     /**
@@ -136,6 +162,41 @@ define([
             self.editItem(e, id, text, duedate);
         });
     };
+
+    /**
+     * Refresh items.
+     *
+     * @method
+     * @return {Deferred}
+     */
+    TodoControl.prototype.refreshTodo = function() {
+        var self = this;
+
+        return Ajax.call([{
+            methodname: 'block_todo_refresh_items',
+            args: {
+                instanceid: self.instanceid,
+                contextid: self.contextid,
+            }
+
+        }])[0].fail(function(reason) {
+            Log.error('block_todo/control: unable to refresh the items');
+            Log.debug(reason);
+            return $.Deferred().reject();
+
+        }).then(function(response) {
+            return Templates.render('block_todo/items', response).fail(function(reason) {
+                Log.error('block_todo/control: unable to render items:' + reason);
+            });
+
+        }).then(function(items) {
+            self.region.find('.items-list').html(items);
+            return $.Deferred().resolve();
+        });
+    };
+
+
+
 
     /**
      * Add a new todo item.

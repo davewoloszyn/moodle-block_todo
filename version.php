@@ -26,6 +26,6 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'block_todo';
 $plugin->release = '2.0.0';
-$plugin->version = 2023011600;
+$plugin->version = 2023020905;
 $plugin->requires = 2017051500;
 $plugin->maturity = MATURITY_STABLE;

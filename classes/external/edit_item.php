@@ -15,12 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Provides {@link block_todo\external\toggle_item} trait.
+ * Provides {@link block_todo\external\edit_item} trait.
  *
  * @package    block_todo
  * @category   external
- * @copyright  2018 David Mudrák <david@moodle.com>
- * @author     2023 David Woloszyn <david.woloszyn@moodle.com>
+ * @copyright  2023 David Woloszyn <david.woloszyn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -38,40 +37,42 @@ use invalid_parameter_exception;
 require_once($CFG->libdir.'/externallib.php');
 
 /**
- * Trait implementing the external function block_todo_toggle_item.
+ * Trait implementing the external function block_todo_edit_item.
  */
-trait toggle_item {
+trait edit_item {
 
     /**
      * Describes the structure of parameters for the function.
      *
      * @return external_function_parameters
      */
-    public static function toggle_item_parameters(): external_function_parameters {
+    public static function edit_item_parameters(): external_function_parameters {
         return new external_function_parameters([
             'instanceid' => new external_value(PARAM_INT, 'The instance id'),
-            'id' => new external_value(PARAM_INT, 'ID of the todo item'),
-            'hide' => new external_value(PARAM_BOOL, 'The hide or not to hide', 0),
+            'id' => new external_value(PARAM_INT, 'Id of item'),
+            'todotext' => new external_value(PARAM_TEXT, 'Item text describing what is to be done'),
+            'duedate' => new external_value(PARAM_INT, 'Due date of item', 0),
         ]);
     }
 
     /**
-     * Toggle the done status of the item.
+     * Adds a new todo item.
      *
      * @param int $instanceid The instance id.
      * @param int $id The id of the item.
-     * @param int $hide Are we currently hiding completed items.
+     * @param string $todotext Item text.
+     * @param ?int $duedate Due date.
      * @return string Template HTML.
      */
-    public static function toggle_item(int $instanceid, int $id, bool $hide = false): string {
+    public static function edit_item(int $instanceid, int $id, string $todotext, ?int $duedate): string {
         global $USER, $PAGE;
 
         // Validate.
         $context = context_user::instance($USER->id);
         self::validate_context($context);
         require_capability('block/todo:myaddinstance', $context);
-        $params = ['instanceid' => $instanceid, 'id' => $id, 'hide' => $hide];
-        $params = self::validate_parameters(self::toggle_item_parameters(), $params);
+        $params = ['instanceid' => $instanceid, 'id' => $id, 'todotext' => strip_tags($todotext), 'duedate' => $duedate];
+        $params = self::validate_parameters(self::edit_item_parameters(), $params);
 
         // Update record.
         $item = item::get_record(['usermodified' => $USER->id, 'id' => $id]);
@@ -80,8 +81,8 @@ trait toggle_item {
             throw new invalid_parameter_exception('Unable to find your todo item with that ID');
         }
 
-        $item->set('done', !$item->get('done'));
-        $item->set('hide', $hide);
+        $item->set('todotext', $todotext);
+        $item->set('duedate', $duedate);
         $item->update();
 
         // Return an updated list.
@@ -103,7 +104,7 @@ trait toggle_item {
      *
      * @return external_value
      */
-    public static function toggle_item_returns(): external_value {
+    public static function edit_item_returns(): external_value {
         return new external_value(PARAM_RAW, 'template');
     }
 }

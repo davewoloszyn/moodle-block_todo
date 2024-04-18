@@ -17,20 +17,22 @@
 /**
  * Provides {@link block_todo\external\add_item} trait.
  *
- * @package     block_todo
- * @category    external
- * @copyright   2018 David Mudrák <david@moodle.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_todo
+ * @category   external
+ * @copyright  2018 David Mudrák <david@moodle.com>
+ * @author     2023 David Woloszyn <david.woloszyn@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace block_todo\external;
 
 defined('MOODLE_INTERNAL') || die();
 
+use block_todo;
 use block_todo\item;
 use context_user;
-use external_function_parameters;
-use external_value;
+use core_external\external_function_parameters;
+use core_external\external_value;
 
 require_once($CFG->libdir.'/externallib.php');
 
@@ -44,41 +46,56 @@ trait add_item {
      *
      * @return external_function_parameters
      */
-    public static function add_item_parameters() {
+    public static function add_item_parameters(): external_function_parameters {
         return new external_function_parameters([
-            'todotext' => new external_value(PARAM_RAW, 'Item text describing what is to be done'),
+            'instanceid' => new external_value(PARAM_INT, 'The instance id'),
+            'todotext' => new external_value(PARAM_TEXT, 'Item text describing what is to be done'),
+            'duedate' => new external_value(PARAM_INT, 'Due date of item', 0),
         ]);
     }
 
     /**
      * Adds a new todo item.
      *
-     * @param string $todotext Item text
+     * @param int $instanceid The instance id.
+     * @param string $todotext Item text.
+     * @param ?int $duedate Due date.
+     * @return string Template HTML.
      */
-    public static function add_item($todotext) {
+    public static function add_item(int $instanceid, string $todotext, ?int $duedate = null): string {
         global $USER, $PAGE;
 
+        // Validate.
         $context = context_user::instance($USER->id);
         self::validate_context($context);
         require_capability('block/todo:myaddinstance', $context);
+        $params = ['instanceid' => $instanceid, 'todotext' => strip_tags($todotext), 'duedate' => $duedate];
+        $params = self::validate_parameters(self::add_item_parameters(), $params);
 
-        $todotext = strip_tags($todotext);
-        $params = self::validate_parameters(self::add_item_parameters(), compact('todotext'));
-
+        // Update record.
         $item = new item(null, (object) $params);
         $item->create();
 
-        $itemexporter = new item_exporter($item, ['context' => $context]);
+        // Return an updated list.
+        $items = block_todo\item::get_my_todo_items();
 
-        return $itemexporter->export($PAGE->get_renderer('core'));
+        $list = new block_todo\external\list_exporter([
+            'instanceid' => $instanceid,
+        ], [
+            'items' => $items,
+            'context' => $context,
+        ]);
+
+        $output = $PAGE->get_renderer('core');
+        return $output->render_from_template('block_todo/list', $list->export($output));
     }
 
     /**
      * Describes the structure of the function return value.
      *
-     * @return external_single_structure
+     * @return external_value
      */
-    public static function add_item_returns() {
-        return item_exporter::get_read_structure();
+    public static function add_item_returns(): external_value {
+        return new external_value(PARAM_RAW, 'template');
     }
 }

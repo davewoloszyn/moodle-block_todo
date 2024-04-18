@@ -12,6 +12,18 @@ available in recent Moodle versions. Most notably:
 * Low-level access to the database via persistent models.
 * Using exporters for handling the data structures in rendering and AJAX.
 
+## Features ##
+
+The following features are available:
+
+* Toggle item completion
+* Edit items
+* Group items by dates
+* Pin items
+* Hide/show completed items
+
+This block plugin is currently only suitable for use on Moodle's Dashboard.
+
 ## License ##
 
 2018 David Mudrák <david@moodle.com>

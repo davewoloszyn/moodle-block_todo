@@ -1,5 +1,14 @@
 # CHANGES #
 
+## 2.0.0 ##
+
+Added the following functionality:
+
+* Edit items
+* Due dates
+* Pinning
+* Delete confirmation
+
 ## 1.1.0 ##
 
 * Privacy API implementation.

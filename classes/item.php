@@ -17,9 +17,10 @@
 /**
  * Provides the {@link block_todo\item} class.
  *
- * @package     block_todo
- * @copyright   2018 David Mudrák <david@moodle.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_todo
+ * @copyright  2018 David Mudrák <david@moodle.com>
+ * @author     2023 David Woloszyn <david.woloszyn@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace block_todo;
@@ -44,7 +45,11 @@ class item extends persistent {
     public static function get_my_todo_items() {
         global $USER;
 
-        return static::get_records(['usermodified' => $USER->id], 'timecreated', 'DESC');
+        $params = [
+            'usermodified' => $USER->id,
+        ];
+
+        return static::get_records($params, 'duedate, timecreated', 'ASC');
     }
 
     /**
@@ -57,10 +62,30 @@ class item extends persistent {
             'todotext' => [
                 'type' => PARAM_TEXT,
             ],
+            'duedate' => [
+                'type' => PARAM_INT,
+                'required' => false,
+                'default' => null,
+                'null' => NULL_ALLOWED,
+            ],
             'done' => [
                 'type' => PARAM_BOOL,
                 'default' => false,
-            ]
+            ],
+            'pin' => [
+                'type' => PARAM_BOOL,
+                'default' => false,
+            ],
+            'hide' => [
+                'type' => PARAM_BOOL,
+                'default' => false,
+            ],
+            'id' => [
+                'type' => PARAM_INT,
+                'required' => false,
+                'default' => null,
+                'null' => NULL_ALLOWED,
+            ],
         ];
     }
 }

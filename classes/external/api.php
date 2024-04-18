@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir.'/externallib.php');
 
-use external_api;
+use core_external\external_api;
 
 /**
  * Provides an external API of the block.
@@ -38,6 +38,7 @@ use external_api;
  * aggregates them all.
  *
  * @copyright 2018 David Mudrák <david@moodle.com>
+ * @author    2023 David Woloszyn <david.woloszyn@moodle.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class api extends external_api {
@@ -45,4 +46,7 @@ class api extends external_api {
     use add_item;
     use toggle_item;
     use delete_item;
+    use edit_item;
+    use pin_item;
+    use hide_done_items;
 }

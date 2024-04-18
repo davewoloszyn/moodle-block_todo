@@ -17,9 +17,10 @@
 /**
  * Block todo is defined here.
  *
- * @package     block_todo
- * @copyright   2018 David Mudrák <david@moodle.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_todo
+ * @copyright  2018 David Mudrák <david@moodle.com>
+ * @author     2023 David Woloszyn <david.woloszyn@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
@@ -29,14 +30,15 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @package    block_todo
  * @copyright  2018 David Mudrák <david@moodle.com>
+ * @author     2023 David Woloszyn <david.woloszyn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_todo extends block_base {
 
     /**
-     * Initializes class member variables.
+     * Initialises class member variables.
      */
-    public function init() {
+    public function init(): void {
         // Needed by Moodle to differentiate between blocks.
         $this->title = get_string('pluginname', 'block_todo');
     }
@@ -46,8 +48,8 @@ class block_todo extends block_base {
      *
      * @return stdClass The block contents.
      */
-    public function get_content() {
-        global $USER, $OUTPUT;
+    public function get_content(): \stdClass {
+        global $OUTPUT;
 
         if ($this->content !== null) {
             return $this->content;
@@ -60,7 +62,7 @@ class block_todo extends block_base {
 
         $this->content = new stdClass();
 
-        // Load the list of persistent todo item models from the database.
+        // Get items for the list.
         $items = block_todo\item::get_my_todo_items();
 
         // Prepare the exporter of the todo items list.
@@ -80,8 +82,7 @@ class block_todo extends block_base {
     /**
      * Gets Javascript required for the widget functionality.
      */
-    public function get_required_javascript() {
-
+    public function get_required_javascript(): void {
         parent::get_required_javascript();
         $this->page->requires->js_call_amd('block_todo/control', 'init', [
             'instanceid' => $this->instance->id
@@ -93,8 +94,7 @@ class block_todo extends block_base {
      *
      * The function is called immediatly after init().
      */
-    public function specialization() {
-
+    public function specialization(): void {
         // Load user defined title and make sure it's never empty.
         if (empty($this->config->title)) {
             $this->title = get_string('pluginname', 'block_todo');
@@ -106,11 +106,11 @@ class block_todo extends block_base {
     /**
      * Sets the applicable formats for the block.
      *
-     * @return string[] Array of pages and permissions.
+     * @return array Array of pages and permissions.
      */
-    public function applicable_formats() {
-        return array(
+    public function applicable_formats(): array {
+        return [
             'my' => true,
-        );
+        ];
     }
 }

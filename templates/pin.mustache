@@ -1,0 +1,38 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template block_todo/pin
+
+    ToDo pin template.
+
+    Renders a single todo item that is pinned. See template block_todo/content for details.
+}}
+
+<li data-item="{{id}}" class="list-group-item d-flex {{#done}}text-muted muted{{/done}} border-warning" style="background-color:#fff3e1">
+    <div class="mr-2" data-control="toggle" role="button" title="{{#str}} toggle, block_todo {{/str}}" aria-label="{{#str}} toggle, block_todo {{/str}}">
+        {{#done}}<i class="fa fa-check-square" aria-hidden="true"></i>{{/done}}
+        {{^done}}<i class="fa fa-square-o" aria-hidden="true"></i>{{/done}}
+    </div>
+    <div>
+        {{todotext}}
+    </div>
+    <div class="ml-auto" data-control="actions" data-id="{{id}}" data-text="{{todotext}}" data-duedate="{{duedate}}">
+        <i class="icon fa fa-thumbtack text-danger" title="{{#str}} pin, block_todo {{/str}}" role="button" aria-label="{{#str}} pin, block_todo {{/str}}" data-control="pin"></i>
+        {{^done}}<i class="icon fa fa-cog" title="{{#str}} edit {{/str}}" role="button" aria-label="{{#str}} edit {{/str}}" data-control="edit"></i>{{/done}}
+        <i class="icon fa fa-trash" title="{{#str}} delete {{/str}}" role="button" aria-label="{{#str}} delete {{/str}}" data-control="delete"></i>
+    </div>
+</li>

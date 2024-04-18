@@ -17,20 +17,22 @@
 /**
  * Provides {@link block_todo\external\delete_item} trait.
  *
- * @package     block_todo
- * @category    external
- * @copyright   2018 David Mudrák <david@moodle.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_todo
+ * @category   external
+ * @copyright  2018 David Mudrák <david@moodle.com>
+ * @author     2023 David Woloszyn <david.woloszyn@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace block_todo\external;
 
 defined('MOODLE_INTERNAL') || die();
 
+use block_todo;
 use block_todo\item;
 use context_user;
-use external_function_parameters;
-use external_value;
+use core_external\external_function_parameters;
+use core_external\external_value;
 use invalid_parameter_exception;
 
 require_once($CFG->libdir.'/externallib.php');
@@ -45,27 +47,31 @@ trait delete_item {
      *
      * @return external_function_parameters
      */
-    public static function delete_item_parameters() {
+    public static function delete_item_parameters(): external_function_parameters {
         return new external_function_parameters([
+            'instanceid' => new external_value(PARAM_INT, 'The instance id'),
             'id' => new external_value(PARAM_INT, 'ID of the todo item'),
         ]);
     }
 
     /**
-     * Toggle the done status of the item.
+     * Delete the todo item.
      *
-     * @param int $id ID of the item
-     * @return int ID of the removed todo item
+     * @param int $instanceid The instance id.
+     * @return int The id of the todo item we want to delete.
+     * @return string Template HTML.
      */
-    public static function delete_item($id) {
+    public static function delete_item(int $instanceid, int $id): string {
         global $USER, $PAGE;
 
+        // Validate.
         $context = context_user::instance($USER->id);
         self::validate_context($context);
         require_capability('block/todo:myaddinstance', $context);
+        $params = ['instanceid' => $instanceid, 'id' => $id];
+        $params = self::validate_parameters(self::delete_item_parameters(), $params);
 
-        $params = self::validate_parameters(self::delete_item_parameters(), compact('id'));
-
+        // Update record.
         $item = item::get_record(['usermodified' => $USER->id, 'id' => $id]);
 
         if (!$item) {
@@ -74,15 +80,26 @@ trait delete_item {
 
         $item->delete();
 
-        return $id;
+        // Return an updated list.
+        $items = block_todo\item::get_my_todo_items();
+
+        $list = new block_todo\external\list_exporter([
+            'instanceid' => $instanceid,
+        ], [
+            'items' => $items,
+            'context' => $context,
+        ]);
+
+        $output = $PAGE->get_renderer('core');
+        return $output->render_from_template('block_todo/list', $list->export($output));
     }
 
     /**
      * Describes the structure of the function return value.
      *
-     * @return external_description
+     * @return external_value
      */
-    public static function delete_item_returns() {
-        return new external_value(PARAM_INT, 'ID of the removed todo item');
+    public static function delete_item_returns(): external_value {
+        return new external_value(PARAM_RAW, 'template');
     }
 }

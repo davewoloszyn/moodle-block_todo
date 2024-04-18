@@ -17,15 +17,16 @@
 /**
  * Plugin version and other meta-data are defined here.
  *
- * @package     block_todo
- * @copyright   2018 David Mudrák <david@moodle.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    block_todo
+ * @copyright  2018 David Mudrák <david@moodle.com>
+ * @author     2023 David Woloszyn <david.woloszyn@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'block_todo';
-$plugin->release = '1.1.0';
-$plugin->version = 2018071500;
-$plugin->requires = 2017051500;
+$plugin->release = '2.0.0';
+$plugin->version = 2024041800;
+$plugin->requires = 2023042406;
 $plugin->maturity = MATURITY_STABLE;

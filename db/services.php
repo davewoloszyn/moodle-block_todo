@@ -58,4 +58,37 @@ $functions = [
         'loginrequired' => true,
         'ajax' => true,
     ],
+
+    'block_todo_edit_item' => [
+        'classname' => 'block_todo\external\api',
+        'methodname' => 'edit_item',
+        'classpath' => '',
+        'description' => 'Edit the given item in the todo list',
+        'type' => 'write',
+        'capabilities' => 'block/todo:myaddinstance',
+        'loginrequired' => true,
+        'ajax' => true,
+    ],
+
+    'block_todo_pin_item' => [
+        'classname' => 'block_todo\external\api',
+        'methodname' => 'pin_item',
+        'classpath' => '',
+        'description' => 'Toggles the pinned status of the given item',
+        'type' => 'write',
+        'capabilities' => 'block/todo:myaddinstance',
+        'loginrequired' => true,
+        'ajax' => true,
+    ],
+
+    'block_todo_hide_done_items' => [
+        'classname' => 'block_todo\external\api',
+        'methodname' => 'hide_done_items',
+        'classpath' => '',
+        'description' => 'Toggles the hidden status of done items',
+        'type' => 'write',
+        'capabilities' => 'block/todo:myaddinstance',
+        'loginrequired' => true,
+        'ajax' => true,
+    ],
 ];

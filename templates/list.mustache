@@ -21,46 +21,26 @@
 
     Renders a list of todo items.
 
-    Classes required for JS:
-    * none
-
-    Data attributes required for JS:
-    * data-region="block_todo-instance-<instanceid>" - specifies the region wrapping all the contents
-    * data-item="<id>" - specifies the wraper of a single todo item
-    * data-control="addform" - specifies the form for adding a new todo item
-    * data-control="delete" - specifies the button for deleting an item
-
-    Context variables required for this template:
-    * instanceid - block instance id
-    * items
-    ** items.id
-    ** items.todotext
-    ** items.done
-
-    Example context (json):
-    {
-        "items": [
-            { "id": "2", "todotext": "Meditate", "done": "0" }
-            { "id": "1", "todotext": "Hack", "done": "1" }
-        ]
-    }
-
+    See block_todo/content for data structure.
 }}
 <div class="list-wrapper" data-hidedone="{{hidedone}}">
-    <ul class="list-group unstyled todogroup">
+    <ul class="list-group unstyled todogroup mb-3">
         {{#pinned}}
             {{>block_todo/pin}}
         {{/pinned}}
     </ul>
     {{#items}}
         <div data-duedategroup="{{duedate}}">
-            <h5 class="h6 mt-3">
-                {{duedateformatted}}
-                {{#overdue}}
-                    <span class="badge badge-pill badge-danger ml-1">{{#str}} overdue, block_todo {{/str}}</span>
-                {{/overdue}}
-            </h5>
-            <ul class="list-group unstyled todogroup">
+            {{#duedateformatted}}
+                <div class="h6">
+                    <span class="mr-1">
+                        {{#today}}<i class="fa fa-circle text-primary" title="{{#str}}today, block_todo{{/str}}"></i>{{/today}}
+                        {{#overdue}}<i class="fa fa-circle text-danger" title="{{#str}}overdue, block_todo{{/str}}"></i>{{/overdue}}
+                    </span>
+                    {{duedateformatted}}
+                </div>
+            {{/duedateformatted}}
+            <ul class="list-group unstyled todogroup mb-3">
                 {{#nesteditems}}
                     {{>block_todo/item}}
                 {{/nesteditems}}

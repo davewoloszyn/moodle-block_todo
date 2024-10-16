@@ -25,15 +25,21 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['additem'] = 'Add item';
+$string['deleteitem'] = 'Delete item';
 $string['duedate'] = 'Due date';
+$string['edititem'] = 'Edit item';
 $string['hidecompleted'] = 'Show/hide completed items';
+$string['itemname'] = 'Item name';
 $string['placeholder'] = 'What do you need to do?';
 $string['placeholdermore'] = 'Type something here and press the Add button';
 $string['pluginname'] = 'My ToDo list';
 $string['overdue'] = 'Overdue';
 $string['pin'] = 'Pin';
 $string['refresh'] = 'Refresh list';
+$string['today'] = 'Today';
 $string['toggle'] = 'Toggle completion of this item';
+$string['unpin'] = 'Unpin';
 $string['privacy:metadata:db:blocktodo'] = 'Storage of users todo items.';
 $string['privacy:metadata:db:blocktodo:done'] = 'Has the item been marked as done.';
 $string['privacy:metadata:db:blocktodo:timecreated'] = 'When the item was created.';

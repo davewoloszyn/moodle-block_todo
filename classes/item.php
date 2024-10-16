@@ -68,6 +68,20 @@ class item extends persistent {
                 'default' => null,
                 'null' => NULL_ALLOWED,
             ],
+            'duedateformatted' => [
+                'type' => PARAM_TEXT,
+                'required' => false,
+                'default' => null,
+                'null' => NULL_ALLOWED,
+            ],
+            'overdue' => [
+                'type' => PARAM_BOOL,
+                'default' => false,
+            ],
+            'today' => [
+                'type' => PARAM_BOOL,
+                'default' => false,
+            ],
             'done' => [
                 'type' => PARAM_BOOL,
                 'default' => false,

@@ -1,5 +1,17 @@
 # CHANGES #
 
+## 2.1.0 ##
+
+Bug fixes:
+
+* Pinned item completion can now be toggled
+
+Improvements:
+
+* Small screen optimisation
+* Due dates visible on pinned items
+* Cleaner UI
+
 ## 2.0.0 ##
 
 Added the following functionality:

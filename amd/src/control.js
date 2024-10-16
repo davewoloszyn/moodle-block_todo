@@ -53,7 +53,6 @@ define([
      * @param {number} id The instance id
      */
     function init(id) {
-        Log.debug('block_todo/control: initializing controls of the todo block instance ' + id);
 
         var region = $('[data-region="block_todo-instance-' + id + '"]').first();
 
@@ -85,12 +84,8 @@ define([
     TodoControl.prototype.main = function() {
         var self = this;
 
-        self.addForm = self.region.find('[data-control="addform"]').first();
-        self.addTextInput = self.addForm.find('.block_todo_text');
-        self.addDueDateInput = self.addForm.find('.block_todo_duedate');
-        self.addSubmitButton = self.addForm.find('.block_todo_submit');
+        self.main = self.region.find('[data-control="main"]');
         self.itemsList = self.region.find('.list-wrapper');
-        self.hideItemsButton = self.region.find('.block_todo_hide');
         self.currentHideDone = self.region.find('[data-hidedone]');
 
         self.initFeatures();
@@ -105,45 +100,38 @@ define([
         var self = this;
 
         // Reset all event listeners.
-        self.addForm.off();
-        self.addSubmitButton.off();
+        self.main.off();
         self.itemsList.off();
-        self.hideItemsButton.off();
 
-        // Submit form.
-        self.addForm.on('submit', function(e) {
-            e.preventDefault();
-            self.addNewTodo();
-        });
-        // Submit form button.
-        self.addSubmitButton.on('click', function() {
-            self.addForm.submit();
+        // Add item.
+        self.main.on('click', '[data-control="additem"]', function(e) {
+            self.addItem(e);
         });
         // Toggle item completion.
         self.itemsList.on('click', '[data-control="toggle"]', function(e) {
-            var id = $(e.currentTarget).parent().parent().attr('data-item');
+            var id = $(e.currentTarget).closest('[data-item]').attr('data-item');
             self.toggleItem(id);
         });
         // Delete item.
         self.itemsList.on('click', '[data-control="delete"]', function(e) {
-            var id = $(e.currentTarget).parent().attr('data-id');
-            var text = $(e.currentTarget).parent().attr('data-text');
+            var id = $(e.currentTarget).closest('[data-item]').attr('data-item');
+            var text = $(e.currentTarget).closest('[data-item]').attr('data-text');
             self.deleteItem(e, id, text);
         });
         // Edit item.
         self.itemsList.on('click', '[data-control="edit"]', function(e) {
-            var id = $(e.currentTarget).parent().attr('data-id');
-            var text = $(e.currentTarget).parent().attr('data-text');
-            var duedate = $(e.currentTarget).parent().attr('data-duedate');
+            var id = $(e.currentTarget).closest('[data-item]').attr('data-item');
+            var text = $(e.currentTarget).closest('[data-item]').attr('data-text');
+            var duedate = $(e.currentTarget).closest('[data-item]').attr('data-duedate');
             self.editItem(e, id, text, duedate);
         });
         // Pin item.
         self.itemsList.on('click', '[data-control="pin"]', function(e) {
-            var id = $(e.currentTarget).parent().attr('data-id');
+            var id = $(e.currentTarget).closest('[data-item]').attr('data-item');
             self.pinItem(id);
         });
-        // Hide item.
-        self.hideItemsButton.on('click', function() {
+        // Hide done items.
+        self.main.on('click', '[data-control="hidedone"]', function() {
             var currentlyHidden = getHiddenState(self);
             if (typeof currentlyHidden !== 'undefined') {
                 self.hideDoneItems(currentlyHidden);
@@ -156,48 +144,66 @@ define([
     };
 
     /**
-     * Add a new todo item.
+     * Add a new item.
      *
      * @method
+     * @param {Event} e The event
      * @return {Deferred}
      */
-    TodoControl.prototype.addNewTodo = function() {
+    TodoControl.prototype.addItem = function(e) {
         var self = this;
-        var todoText = $.trim(self.addTextInput.val());
-        var duedate = null;
+        var trigger = $(e.currentTarget);
 
-        // If there is a due date, convert it.
-        if (self.addDueDateInput.val()) {
-            duedate = dateToTimestamp(self.addDueDateInput.val());
-        }
+        // Create modal.
+        ModalFactory.create({
+            type: ModalFactory.types.SAVE_CANCEL,
+            title: Str.getString('additem', 'block_todo'),
+            body: Templates.render('block_todo/add'),
+        }, trigger)
+        .done(function(modal) {
 
-        if (!todoText) {
-            return Str.get_string('placeholdermore', 'block_todo').then(function(text) {
-                self.addTextInput.prop('placeholder', text);
-                return $.Deferred().resolve();
+            modal.getRoot().on(ModalEvents.save, function(e) {
+                var modalBody = modal.getBody();
+                var text = $.trim(modalBody.find('.block_todo_add_text').val());
+                var duedate = dateToTimestamp(modalBody.find('.block_todo_add_duedate').val());
+
+                // Ensure there is a text value.
+                if (!text) {
+                    modalBody.find('.block_todo_add_text').focus();
+                    e.preventDefault();
+                    return false;
+                }
+
+                return Ajax.call([{
+                    methodname: 'block_todo_add_item',
+                    args: {
+                        instanceid: instanceid,
+                        todotext: text,
+                        duedate: duedate,
+                    }
+
+                }])[0].fail(function(reason) {
+                    Log.error('block_todo/control: unable to add the item');
+                    Log.debug(reason);
+                    return $.Deferred().reject();
+
+                }).then(function(response) {
+                    self.itemsList.replaceWith(response);
+                    init(instanceid);
+                    return $.Deferred().resolve();
+                });
             });
-        }
 
-        return Ajax.call([{
-            methodname: 'block_todo_add_item',
-            args: {
-                instanceid: instanceid,
-                todotext: todoText,
-                duedate: duedate,
-            }
+            // Handle hidden event.
+            modal.getRoot().on(ModalEvents.hidden, function() {
+                // Destroy when hidden.
+                modal.destroy();
+            });
 
-        }])[0].fail(function(reason) {
-            Log.error('block_todo/control: unable to add the item');
-            Log.debug(reason);
-            self.addSubmitButton.addClass('btn-danger');
-            self.addSubmitButton.html('<i class="fa fa-exclamation-circle" aria-hidden="true"></i>');
-            return $.Deferred().reject();
-
-        }).then(function(response) {
-            self.itemsList.replaceWith(response);
-            init(instanceid);
-            return $.Deferred().resolve();
+            // Show the modal.
+            modal.show();
         });
+        return $.Deferred().resolve();
     };
 
     /**
@@ -267,16 +273,23 @@ define([
         // Create modal.
         ModalFactory.create({
             type: ModalFactory.types.SAVE_CANCEL,
-            title: 'Edit item',
+            title: Str.getString('edititem', 'block_todo'),
             body: Templates.render('block_todo/edit', args),
         }, trigger)
         .done(function(modal) {
 
-            modal.getRoot().on(ModalEvents.save, function() {
+            modal.getRoot().on(ModalEvents.save, function(e) {
 
                 var modalBody = modal.getBody();
                 var newText = $.trim(modalBody.find('.block_todo_edit_text').val());
                 var newDuedate = dateToTimestamp(modalBody.find('.block_todo_edit_duedate').val());
+
+                // Ensure there is a text value.
+                if (!newText) {
+                    modalBody.find('.block_todo_edit_text').focus();
+                    e.preventDefault();
+                    return false;
+                }
 
                 return Ajax.call([{
                     methodname: 'block_todo_edit_item',
@@ -288,7 +301,6 @@ define([
                     }
 
                 }])[0].fail(function(reason) {
-                    window.console.log(reason);
                     Log.error('block_todo/control: unable to edit the item');
                     Log.debug(reason);
                     return $.Deferred().reject();
@@ -333,7 +345,7 @@ define([
         // Create modal.
         ModalFactory.create({
             type: ModalFactory.types.SAVE_CANCEL,
-            title: 'Delete item',
+            title: Str.getString('deleteitem', 'block_todo'),
             body: 'Are you sure you want to delete <strong>' + text + '</strong>?',
         }, trigger)
         .done(function(modal) {
@@ -434,16 +446,6 @@ define([
         }).then(function(response) {
             self.itemsList.replaceWith(response);
             init(instanceid);
-            // Toggle the show/hide icon.
-            if (hide) {
-                self.hideItemsButton.children().removeClass('fa-eye');
-                self.hideItemsButton.children().removeClass('fa-eye-slash');
-                self.hideItemsButton.children().addClass('fa-eye');
-            } else {
-                self.hideItemsButton.children().removeClass('fa-eye');
-                self.hideItemsButton.children().removeClass('fa-eye-slash');
-                self.hideItemsButton.children().addClass('fa-eye-slash');
-            }
             return $.Deferred().resolve();
         });
     };

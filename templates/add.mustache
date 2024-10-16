@@ -15,21 +15,20 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 {{!
-    @template block_todo/edit
+    @template block_todo/add
 
-    ToDo edit template.
+    ToDo add template.
 
-    Renders a triggered modal window with inputs that to be edited.
+    Renders a triggered modal window with inputs that to be used for adding a new item.
 }}
 
-<form data-control="editform_{{id}}">
+<form>
     <div class="mb-3">
-        <label for="block_todo_edit_text">{{#str}} itemname, block_todo {{/str}}</label>
-        <input id="block_todo_edit_text" type="text" value="{{text}}" name="block_todo_edit_text" class="form-control block_todo_edit_text" maxlength="125" required>
+        <label for="block_todo_add_text">{{#str}} itemname, block_todo {{/str}}</label>
+        <input id="block_todo_add_text" type="text" name="block_todo_add_text" class="form-control block_todo_add_text" maxlength="125" data-control="addtext" required>
     </div>
     <div>
-        <label for="block_todo_edit_duedate">{{#str}} duedate, block_todo {{/str}}</label>
-        <input id="block_todo_edit_duedate" class="form-control block_todo_edit_duedate" value="{{duedate}}" name="block_todo_edit_duedate" type="date">
+        <label for="block_todo_add_duedate">{{#str}} duedate, block_todo {{/str}}</label>
+        <input id="block_todo_add_duedate" class="form-control block_todo_add_duedate" name="block_todo_add_duedate" type="date">
     </div>
 </form>
-

@@ -15,18 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Plugin version and other meta-data are defined here.
+ * Block todo plugin
  *
  * @package    block_todo
- * @copyright  2018 David Mudrák <david@moodle.com>
- * @author     2023 David Woloszyn <david.woloszyn@moodle.com>
+ * @copyright  2024 David Woloszyn <david.woloszyn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->component = 'block_todo';
-$plugin->release = '2.1.0';
-$plugin->version = 2024101600;
-$plugin->requires = 2023042406;
-$plugin->maturity = MATURITY_STABLE;
+/**
+ * Get icon mapping for font-awesome.
+ */
+function block_todo_get_fontawesome_icon_map() {
+    return [
+        'block_todo:pin' => 'fa-thumbtack',
+        'block_todo:edit' => 'fa-cog',
+        'block_todo:delete' => 'fa-trash-can',
+        'block_todo:add' => 'fa-plus',
+    ];
+}

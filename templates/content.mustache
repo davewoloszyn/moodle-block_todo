@@ -40,34 +40,40 @@
     Example context (json):
     {
         "items": [
-            { "id": "2", "todotext": "Meditate", "done": "0" }
-            { "id": "1", "todotext": "Hack", "done": "1" }
-        ]
+            {
+                "overdue": "1",
+                "today": "0",
+                "duedate": 1729043507,
+                "duedateformatted": "Wed, 16 Oct",
+                "nesteditems": [
+                    {
+                        "id": "2",
+                        "todotext": "Meditate",
+                        "duedate": 1729043507,
+                        "done": "0",
+                        "pin": "1",
+                        "hide": "0"
+                    }
+                ],
+                "actions": {
+                    "instance": 3
+                }
+            }
+        ],
+        "pinned":[
+        ],
+        "hidedone": "1"
     }
-
 }}
 
 <div data-region="block_todo-instance-{{instanceid}}">
-    <form data-control="addform">
-        <div class="d-flex">
-            <div class="input-group control-group">
-                <input class="form-control input-block-level block_todo_text" name="block_todo_text"
-                        type="text" placeholder="{{#str}} placeholder, block_todo {{/str}}">
-
-                <label class="sr-only" for="date">{{#str}} duedate, block_todo {{/str}}</label>
-                <input class="form-control block_todo_duedate" id="duedate" name="duedate" type="date">
-
-                <div class="input-group-append">
-                    <button class="btn btn-primary block_todo_submit" type="button">{{#str}} add {{/str}}</button>
-                </div>
-            </div>
-
-            <div class="block_todo_hide btn btn-secondary ml-1" data-control="hide"
-                    title="{{#str}} hidecompleted, block_todo {{/str}}" role="button">
-                 <i class="icon fa fa-eye{{^hidedone}}-slash{{/hidedone}} m-0"></i>
-            </div>
-        </div>
-    </form>
-    <hr>
+    <div class="d-flex mb-3" data-control="main">
+        <button class="btn btn-primary mr-auto" type="button" title="{{#str}} additem, block_todo {{/str}}<" data-control="additem">
+            {{#pix}} add, block_todo {{/pix}}{{#str}} additem, block_todo {{/str}}
+        </button>
+        <button class="btn btn-secondary" type="button" title="{{#str}} hidecompleted, block_todo {{/str}}" data-control="hidedone">
+            <i class="fa fa-eye{{^hidedone}}-slash{{/hidedone}}"></i>
+        </button>
+    </div>
    {{>block_todo/list}}
 </div>

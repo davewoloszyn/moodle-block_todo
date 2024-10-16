@@ -19,20 +19,30 @@
 
     ToDo pin template.
 
-    Renders a single todo item that is pinned. See template block_todo/content for details.
+    Renders a single todo item that is pinned.
+
+    See block_todo/content for data structure.
 }}
 
-<li data-item="{{id}}" class="list-group-item d-flex {{#done}}text-muted muted{{/done}} border-warning" style="background-color:#fff3e1">
-    <div class="mr-2" data-control="toggle" role="button" title="{{#str}} toggle, block_todo {{/str}}" aria-label="{{#str}} toggle, block_todo {{/str}}">
-        {{#done}}<i class="fa fa-check-square" aria-hidden="true"></i>{{/done}}
-        {{^done}}<i class="fa fa-square-o" aria-hidden="true"></i>{{/done}}
+<li class="list-group-item d-flex {{#done}}text-muted muted{{/done}} border-warning" style="background-color:#fff3e1" data-item="{{id}}" data-done="{{done}}" data-text="{{todotext}}" data-duedate="{{duedate}}">
+    <div class="h5 mr-1 mb-0" data-control="toggle" role="button" title="{{#str}} toggle, block_todo {{/str}}" aria-label="{{#str}} toggle, block_todo {{/str}}">
+        {{#done}}<i class="icon fa fa-check-square" aria-hidden="true"></i>{{/done}}
+        {{^done}}<i class="icon fa fa-square-o" aria-hidden="true"></i>{{/done}}
     </div>
-    <div>
-        {{todotext}}
+    <div class="mr-auto">
+        <div class="d-none badge badge-secondary {{#overdue}}badge-danger{{/overdue}} {{#today}}badge-success{{/today}}">{{duedateformatted}}</div>
+        <div class="d-inline-block">
+            {{#duedateformatted}}
+                <div style="font-size:12px;" class="font-weight-bold">
+                    {{#today}}<i class="fa fa-circle text-primary mr-2" title="{{#str}}today, block_todo{{/str}}"></i>{{/today}}
+                    {{#overdue}}<i class="fa fa-circle text-danger mr-2" title="{{#str}}overdue, block_todo{{/str}}"></i>{{/overdue}}
+                    {{duedateformatted}}
+                </div>
+            {{/duedateformatted}}
+            {{todotext}}
+        </div>
     </div>
-    <div class="ml-auto" data-control="actions" data-id="{{id}}" data-text="{{todotext}}" data-duedate="{{duedate}}">
-        <i class="icon fa fa-thumbtack text-danger" title="{{#str}} pin, block_todo {{/str}}" role="button" aria-label="{{#str}} pin, block_todo {{/str}}" data-control="pin"></i>
-        {{^done}}<i class="icon fa fa-cog" title="{{#str}} edit {{/str}}" role="button" aria-label="{{#str}} edit {{/str}}" data-control="edit"></i>{{/done}}
-        <i class="icon fa fa-trash" title="{{#str}} delete {{/str}}" role="button" aria-label="{{#str}} delete {{/str}}" data-control="delete"></i>
+    <div data-control="actions">
+        {{#actions}}{{> core/action_menu}}{{/actions}}
     </div>
 </li>

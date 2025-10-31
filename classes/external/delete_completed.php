@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Provides {@link block_todo\external\hide_done_items} trait.
+ * Provides {@link block_todo\external\delete_completed} trait.
  *
  * @package    block_todo
  * @category   external
- * @copyright  2023 David Woloszyn <david.woloszyn@moodle.com>
+ * @copyright  2025 David Woloszyn <david.woloszyn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -35,54 +35,49 @@ use core_external\external_value;
 require_once($CFG->libdir.'/externallib.php');
 
 /**
- * Trait implementing the external function block_todo_hide_done_items.
+ * Trait implementing the external function block_todo_delete_completed.
  */
-trait hide_done_items {
+trait delete_completed {
 
     /**
      * Describes the structure of parameters for the function.
      *
      * @return external_function_parameters
      */
-    public static function hide_done_items_parameters(): external_function_parameters {
+    public static function delete_completed_parameters(): external_function_parameters {
         return new external_function_parameters([
             'instanceid' => new external_value(PARAM_INT, 'The instance id'),
-            'hide' => new external_value(PARAM_BOOL, 'The hide or not to hide', 0),
             'includehidden' => new external_value(PARAM_BOOL, 'Include hidden items or not', 0),
             'currentgroup' => new external_value(PARAM_INT, 'The current group being viewed', 0),
         ]);
     }
 
     /**
-     * Toggle the hidden status of the 'done' items.
+     * Delete all completed items.
      *
      * @param int $instanceid The instance id.
-     * @param bool $hide true to hide, false to show.
      * @param bool $includehidden Include hidden items.
      * @param int $currentgroup The current group being viewed.
      * @return string Template HTML.
      */
-    public static function hide_done_items(
+    public static function delete_completed(
         int $instanceid,
-        bool $hide,
         bool $includehidden = true,
         int $currentgroup = 0,
     ): string {
-        global $USER, $PAGE, $DB;
+        global $USER, $PAGE;
 
         // Validate.
         $context = context_user::instance($USER->id);
         self::validate_context($context);
         require_capability('block/todo:myaddinstance', $context);
-        $params = ['instanceid' => $instanceid, 'hide' => $hide];
-        $params = self::validate_parameters(self::hide_done_items_parameters(), $params);
+        $params = ['instanceid' => $instanceid];
+        $params = self::validate_parameters(self::delete_completed_parameters(), $params);
 
-        // Update all matching records with the new hide status.
-        $params = ['usermodified' => $USER->id, 'done' => '1'];
-        $DB->set_field('block_todo', 'hide', (int) $hide, $params);
-
+        // Delete completed items.
+        block_todo\item::delete_completed_items();
         // Return an updated list.
-        $items = block_todo\item::get_my_todo_items($currentgroup);
+        $items = block_todo\item::get_my_todo_items();
         // Get group button data.
         $activegroups = block_todo\item::get_group_button_data($items, $includehidden, $currentgroup);
         // Prepare the exporter of the todo items list.
@@ -104,7 +99,7 @@ trait hide_done_items {
      *
      * @return external_value
      */
-    public static function hide_done_items_returns(): external_value {
+    public static function delete_completed_returns(): external_value {
         return new external_value(PARAM_RAW, 'template');
     }
 }

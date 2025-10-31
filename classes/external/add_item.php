@@ -51,6 +51,9 @@ trait add_item {
             'instanceid' => new external_value(PARAM_INT, 'The instance id'),
             'todotext' => new external_value(PARAM_TEXT, 'Item text describing what is to be done'),
             'duedate' => new external_value(PARAM_INT, 'Due date of item', 0),
+            'groupid' => new external_value(PARAM_INT, 'Item belongs to this group', 0),
+            'includehidden' => new external_value(PARAM_BOOL, 'Include hidden items or not', 0),
+            'currentgroup' => new external_value(PARAM_INT, 'The current group being viewed', 0),
         ]);
     }
 
@@ -60,30 +63,49 @@ trait add_item {
      * @param int $instanceid The instance id.
      * @param string $todotext Item text.
      * @param ?int $duedate Due date.
+     * @param int $groupid The group id (0 if none).
+     * @param bool $includehidden Include hidden items.
+     * @param int $currentgroup The current group being viewed.
      * @return string Template HTML.
      */
-    public static function add_item(int $instanceid, string $todotext, ?int $duedate = null): string {
+    public static function add_item(
+        int $instanceid,
+        string $todotext,
+        ?int $duedate = null,
+        int $groupid,
+        bool $includehidden = true,
+        int $currentgroup = 0,
+    ): string {
         global $USER, $PAGE;
 
         // Validate.
         $context = context_user::instance($USER->id);
         self::validate_context($context);
         require_capability('block/todo:myaddinstance', $context);
-        $params = ['instanceid' => $instanceid, 'todotext' => strip_tags($todotext), 'duedate' => $duedate];
+        $params = [
+            'instanceid' => $instanceid,
+            'todotext' => strip_tags($todotext),
+            'duedate' => $duedate,
+            'groupid' => $groupid,
+        ];
         $params = self::validate_parameters(self::add_item_parameters(), $params);
 
         // Update record.
-        $item = new item(null, (object) $params);
+        $item = new item(0, (object) $params);
         $item->create();
 
         // Return an updated list.
         $items = block_todo\item::get_my_todo_items();
-
+        // Get group button data.
+        $activegroups = block_todo\item::get_group_button_data($items, $includehidden, $currentgroup);
+        // Prepare the exporter of the todo items list.
         $list = new block_todo\external\list_exporter([
             'instanceid' => $instanceid,
         ], [
             'items' => $items,
             'context' => $context,
+            'activegroups' => $activegroups,
+            'currentgroup' => $currentgroup,
         ]);
 
         $output = $PAGE->get_renderer('core');

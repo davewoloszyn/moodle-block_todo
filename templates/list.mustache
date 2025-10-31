@@ -23,7 +23,29 @@
 
     See block_todo/content for data structure.
 }}
-<div class="list-wrapper" data-hidedone="{{hidedone}}">
+<div class="list-wrapper" data-hidedone="{{hidedone}}" data-currentgroup="{{currentgroup}}">
+    <div class="d-flex mb-3 button-header" data-control="main">
+        <button class="btn btn-primary mr-auto" type="button" title="{{#str}} additem, block_todo {{/str}}<" data-control="additem">
+            {{#pix}} add, block_todo {{/pix}}<span class="hideable">{{#str}} additem, block_todo {{/str}}</span>
+        </button>
+        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+            {{#activegroups}}
+            {{^hideonload}}
+            <button class="btn btn-outline-secondary" data-control="group" title="{{grouptitle}}">
+                <i class="fa {{groupicon}} group-icon group-icon-{{groupid}}" data-groupid="{{groupid}}"></i>
+            </button>
+            {{/hideonload}}
+            {{/activegroups}}
+            {{#hascompleteditems}}
+            <button class="btn btn-outline-secondary" title="{{#hidedone}}{{#str}} showcompleted, block_todo {{/str}}{{/hidedone}}{{^hidedone}}{{#str}} hidecompleted, block_todo {{/str}}{{/hidedone}}" data-control="hidedone">
+                <i class="fa fa-eye{{^hidedone}}-slash{{/hidedone}}"></i>
+            </button>
+            <button class="btn btn-outline-secondary" title="{{#str}} deletecompleted, block_todo {{/str}}" data-control="deletedone">
+                <i class="fa fa-trash"></i>
+            </button>
+            {{/hascompleteditems}}
+        </div>
+    </div>
     <ul class="list-group unstyled todogroup mb-3">
         {{#pinned}}
             {{>block_todo/pin}}
@@ -32,13 +54,13 @@
     {{#items}}
         <div data-duedategroup="{{duedate}}">
             {{#duedateformatted}}
-                <div class="h6">
-                    <span class="mr-1">
-                        {{#today}}<i class="fa fa-circle text-primary" title="{{#str}}today, block_todo{{/str}}"></i>{{/today}}
-                        {{#overdue}}<i class="fa fa-circle text-danger" title="{{#str}}overdue, block_todo{{/str}}"></i>{{/overdue}}
-                    </span>
-                    {{duedateformatted}}
-                </div>
+            <div class="h6">
+                {{duedateformatted}}
+                <span class="ms-1">
+                    {{#today}}<span class="badge bg-success">{{#str}}today, block_todo{{/str}}</span>{{/today}}
+                    {{#overdue}}<span class="badge bg-danger">{{#str}}overdue, block_todo{{/str}}</span>{{/overdue}}
+                </span>
+            </div>
             {{/duedateformatted}}
             <ul class="list-group unstyled todogroup mb-3">
                 {{#nesteditems}}

@@ -91,4 +91,26 @@ $functions = [
         'loginrequired' => true,
         'ajax' => true,
     ],
+
+    'block_todo_group_items' => [
+        'classname' => 'block_todo\external\api',
+        'methodname' => 'group_items',
+        'classpath' => '',
+        'description' => 'Group items together with the same group id',
+        'type' => 'write',
+        'capabilities' => 'block/todo:myaddinstance',
+        'loginrequired' => true,
+        'ajax' => true,
+    ],
+
+    'block_todo_delete_completed' => [
+        'classname' => 'block_todo\external\api',
+        'methodname' => 'delete_completed',
+        'classpath' => '',
+        'description' => 'Delete all completed items',
+        'type' => 'write',
+        'capabilities' => 'block/todo:myaddinstance',
+        'loginrequired' => true,
+        'ajax' => true,
+    ],
 ];

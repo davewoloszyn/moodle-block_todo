@@ -74,5 +74,18 @@ function xmldb_block_todo_upgrade($oldversion, $block) {
         upgrade_block_savepoint(true, 2023102507, 'todo', false);
     }
 
+    if ($oldversion < 2025102800) {
+
+        $table = new xmldb_table('block_todo');
+        $field = new xmldb_field('groupid', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'hide');
+
+        // Define field groupid to be added to block_todo.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_block_savepoint(true, 2025102800, 'todo', false);
+    }
+
     return true;
 }

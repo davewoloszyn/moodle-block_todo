@@ -51,6 +51,8 @@ trait delete_item {
         return new external_function_parameters([
             'instanceid' => new external_value(PARAM_INT, 'The instance id'),
             'id' => new external_value(PARAM_INT, 'ID of the todo item'),
+            'includehidden' => new external_value(PARAM_BOOL, 'Include hidden items or not', 0),
+            'currentgroup' => new external_value(PARAM_INT, 'The current group being viewed', 0),
         ]);
     }
 
@@ -58,10 +60,17 @@ trait delete_item {
      * Delete the todo item.
      *
      * @param int $instanceid The instance id.
-     * @return int The id of the todo item we want to delete.
+     * @return int $id The id of the todo item we want to delete.
+     * @param bool $includehidden Include hidden items.
+     * @param int $currentgroup The current group being viewed.
      * @return string Template HTML.
      */
-    public static function delete_item(int $instanceid, int $id): string {
+    public static function delete_item(
+        int $instanceid,
+        int $id,
+        bool $includehidden = true,
+        int $currentgroup = 0,
+    ): string {
         global $USER, $PAGE;
 
         // Validate.
@@ -82,12 +91,16 @@ trait delete_item {
 
         // Return an updated list.
         $items = block_todo\item::get_my_todo_items();
-
+        // Get group button data.
+        $activegroups = block_todo\item::get_group_button_data($items, $includehidden, $currentgroup);
+        // Prepare the exporter of the todo items list.
         $list = new block_todo\external\list_exporter([
             'instanceid' => $instanceid,
         ], [
             'items' => $items,
             'context' => $context,
+            'activegroups' => $activegroups,
+            'currentgroup' => $currentgroup,
         ]);
 
         $output = $PAGE->get_renderer('core');

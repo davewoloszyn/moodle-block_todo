@@ -52,6 +52,8 @@ trait toggle_item {
             'instanceid' => new external_value(PARAM_INT, 'The instance id'),
             'id' => new external_value(PARAM_INT, 'ID of the todo item'),
             'hide' => new external_value(PARAM_BOOL, 'The hide or not to hide', 0),
+            'includehidden' => new external_value(PARAM_BOOL, 'Include hidden items or not', 0),
+            'currentgroup' => new external_value(PARAM_INT, 'The current group being viewed', 0),
         ]);
     }
 
@@ -60,10 +62,18 @@ trait toggle_item {
      *
      * @param int $instanceid The instance id.
      * @param int $id The id of the item.
-     * @param int $hide Are we currently hiding completed items.
+     * @param bool $hide Are we currently hiding completed items.
+     * @param bool $includehidden Include hidden items.
+     * @param int $currentgroup The current group being viewed.
      * @return string Template HTML.
      */
-    public static function toggle_item(int $instanceid, int $id, bool $hide = false): string {
+    public static function toggle_item(
+        int $instanceid,
+        int $id,
+        bool $hide = false,
+        bool $includehidden = true,
+        int $currentgroup = 0,
+    ): string {
         global $USER, $PAGE;
 
         // Validate.
@@ -86,12 +96,16 @@ trait toggle_item {
 
         // Return an updated list.
         $items = block_todo\item::get_my_todo_items();
-
+        // Get group button data.
+        $activegroups = block_todo\item::get_group_button_data($items, $includehidden, $currentgroup);
+        // Prepare the exporter of the todo items list.
         $list = new block_todo\external\list_exporter([
             'instanceid' => $instanceid,
         ], [
             'items' => $items,
             'context' => $context,
+            'activegroups' => $activegroups,
+            'currentgroup' => $currentgroup,
         ]);
 
         $output = $PAGE->get_renderer('core');

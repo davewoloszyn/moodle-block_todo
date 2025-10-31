@@ -49,4 +49,6 @@ class api extends external_api {
     use edit_item;
     use pin_item;
     use hide_done_items;
+    use group_items;
+    use delete_completed;
 }

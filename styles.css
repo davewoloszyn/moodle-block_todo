@@ -1,0 +1,63 @@
+.block_todo .pinned-item {
+    background-color: #fff3e1;
+    border: 1px solid #ffb829;
+}
+
+.block_todo .h6 {
+    font-weight: bold;
+}
+
+.block_todo .badge {
+    color: #fff;
+}
+
+.block_todo .done {
+    text-decoration: line-through;
+}
+
+.block_todo .group-icon-0,
+#block_todo_groups .group-icon-0 {
+    color: #686868;
+}
+
+.block_todo .group-icon-1,
+#block_todo_groups .group-icon-1 {
+    color: #ffbb75;
+}
+
+.block_todo .group-icon-2,
+#block_todo_groups .group-icon-2 {
+    color: #56ceff;
+}
+
+.block_todo .group-icon-3,
+#block_todo_groups .group-icon-3 {
+    color: #5dc891;
+}
+
+.block_todo .group-icon-4,
+#block_todo_groups .group-icon-4 {
+    color: #e0a9fd;
+}
+
+.block_todo .group-icon-5,
+#block_todo_groups .group-icon-5 {
+    color: #ff7d87;
+}
+
+#block-region-side-pre .block_todo .hideable {
+    display: none;
+}
+
+#block-region-side-pre .block_todo .icon {
+    margin-right: 0;
+}
+
+#block-region-side-pre .block_todo .btn-group {
+    display: inline;
+    margin-left: 0.5rem;
+}
+
+#block-region-side-pre .block_todo .btn-group .btn {
+    border-radius: 0.5rem;
+}

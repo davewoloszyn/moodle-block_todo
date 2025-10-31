@@ -25,13 +25,14 @@
 }}
 {{^pin}}
     {{^hide}}
-        <li class="list-group-item d-flex {{#done}}text-muted muted{{/done}}" data-item="{{id}}" data-done="{{done}}" data-text="{{todotext}}" data-duedate="{{duedate}}">
+        <li class="list-group-item d-flex p-3 {{#done}}text-muted muted{{/done}}" data-item="{{id}}" data-done="{{done}}" data-text="{{todotext}}" data-duedate="{{duedate}}" data-groupid="{{groupid}}">
             <div class="h5 mr-1 mb-0" data-control="toggle" role="button" title="{{#str}} toggle, block_todo {{/str}}" aria-label="{{#str}} toggle, block_todo {{/str}}">
                 {{#done}}<i class="icon fa fa-check-square" aria-hidden="true"></i>{{/done}}
                 {{^done}}<i class="icon fa fa-square-o" aria-hidden="true"></i>{{/done}}
             </div>
             <div class="mr-auto">
-                {{todotext}}
+                {{#groupid}}<i class="me-1 fa fa-star group-icon group-icon-{{groupid}}"></i>{{/groupid}}
+                <span class="{{#done}}done{{/done}}">{{todotext}}</span>
             </div>
             <div class="ml-auto" data-control="actions">
                 {{#actions}}{{> core/action_menu}}{{/actions}}

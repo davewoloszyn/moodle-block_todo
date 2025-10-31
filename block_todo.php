@@ -64,6 +64,10 @@ class block_todo extends block_base {
 
         // Get items for the list.
         $items = block_todo\item::get_my_todo_items();
+        // Determine if there are hidden items. If so, we respect that when displaying the list.
+        $includehidden = block_todo\item::has_hidden_items($items);
+        // Get group button data.
+        $activegroups = block_todo\item::get_group_button_data($items, $includehidden, 0);
 
         // Prepare the exporter of the todo items list.
         $list = new block_todo\external\list_exporter([
@@ -71,6 +75,8 @@ class block_todo extends block_base {
         ], [
             'items' => $items,
             'context' => $this->context,
+            'activegroups' => $activegroups,
+            'currentgroup' => 0,
         ]);
 
         // Render the list using a template and exported data.

@@ -14,173 +14,107 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace block_todo;
+
+use context;
+use stdClass;
+
 /**
- * Provides the {@link block_todo\item} class.
+ * A single todo item.
  *
  * @package    block_todo
  * @copyright  2018 David Mudrák <david@moodle.com>
  * @author     2023 David Woloszyn <david.woloszyn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-namespace block_todo;
-
-defined('MOODLE_INTERNAL') || die();
-
-use \core\persistent;
-
-/**
- * Persistent model representing a single todo item on the user's list.
- */
-class item extends persistent {
-
-    /** Table to store this persistent model instances. */
-    const TABLE = 'block_todo';
+class item {
 
     /**
-     * Return todo items for the current user.
+     * Constructor.
      *
-     * @param int|null $groupid Filter for group.
-     * @return array
+     * @param int $id The item id.
+     * @param int $usermodified The id of the user who owns the item.
+     * @param string $todotext The item text.
+     * @param int|null $duedate The due date timestamp, if any.
+     * @param bool $done Whether the item is done.
+     * @param bool $pin Whether the item is pinned.
+     * @param bool $hide Whether the item is hidden.
+     * @param int $groupid The group the item belongs to (0 for none).
+     * @param int $timecreated When the item was created.
+     * @param int $timemodified When the item was last modified.
      */
-    public static function get_my_todo_items($groupid = null): array {
-        global $USER, $DB;
+    public function __construct(
+        public int $id,
+        public int $usermodified,
+        public string $todotext,
+        public ?int $duedate,
+        public bool $done,
+        public bool $pin,
+        public bool $hide,
+        public int $groupid,
+        public int $timecreated,
+        public int $timemodified,
+    ) {
+    }
 
-        $params = [
-            'usermodified' => $USER->id,
+    /**
+     * Create an item from a block_todo database record.
+     *
+     * @param stdClass $record The database record.
+     * @return item
+     */
+    public static function from_record(stdClass $record): self {
+        return new self(
+            id: (int) $record->id,
+            usermodified: (int) $record->usermodified,
+            todotext: $record->todotext,
+            duedate: $record->duedate ? (int) $record->duedate : null,
+            done: (bool) $record->done,
+            pin: (bool) $record->pin,
+            hide: (bool) $record->hide,
+            groupid: (int) $record->groupid,
+            timecreated: (int) $record->timecreated,
+            timemodified: (int) $record->timemodified,
+        );
+    }
+
+    /**
+     * Convert the item to a block_todo database record.
+     *
+     * @return stdClass
+     */
+    public function to_record(): stdClass {
+        return (object) [
+            'id' => $this->id,
+            'usermodified' => $this->usermodified,
+            'todotext' => $this->todotext,
+            'duedate' => $this->duedate,
+            'done' => (int) $this->done,
+            'pin' => (int) $this->pin,
+            'hide' => (int) $this->hide,
+            'groupid' => $this->groupid,
+            'timecreated' => $this->timecreated,
+            'timemodified' => $this->timemodified,
         ];
-
-        if ($groupid && $groupid > 0) {
-            $params['groupid'] = $groupid;
-        }
-
-        return static::get_records($params, 'duedate, groupid, timecreated', 'ASC');
     }
 
     /**
-     * Get data that will construct the group buttons.
+     * Export the item for the frontend.
      *
-     * @param array $items The items to check.
-     * @param bool $includehidden Include hidden items.
-     * @param int $currentgroup The curren group id.
+     * The text is not HTML-escaped, as React escapes it when rendering.
+     *
+     * @param context $context The context used to format the text.
      * @return array
      */
-    public static function get_group_button_data(array $items, bool $includehidden, int $currentgroup): array {
-        $activegroups = [];
-        $addedgroups = [];
-        foreach ($items as $item) {
-            if (
-                $item->get('groupid') != 0 &&
-                (($includehidden && $item->get('hide') == 1) || $item->get('hide') != 1)
-            ) {
-                if (!in_array($item->get('groupid'), $addedgroups)) {
-                    $groupdata = [];
-                    $groupdata['groupid'] = $item->get('groupid');
-                    $groupdata['grouptitle'] = get_string('showgroup' . $item->get('groupid'), 'block_todo');
-                    $groupdata['groupicon'] = 'fa-star';
-                    $groupdata['hideonload'] = false;
-                    $activegroups[] = $groupdata;
-                    // Mark as added.
-                    $addedgroups[] = $item->get('groupid');
-                }
-            }
-        }
-        // Add a reset/clear button if we are viewing a group on the page.
-        if (!empty($activegroups)) {
-            $groupdata = [];
-            $groupdata['groupid'] = 0;
-            $groupdata['grouptitle'] = get_string('showgroup0', 'block_todo');
-            $groupdata['groupicon'] = 'fa-times';
-            $groupdata['hideonload'] = $currentgroup == 0;
-            $activegroups[] = $groupdata;
-        }
-        return $activegroups;
-    }
-
-    /**
-     * Does the list of items contain any hidden items.
-     *
-     * @param array $items The items to check.
-     * @return bool
-     */
-    public static function has_hidden_items($items): bool {
-        foreach ($items as $item) {
-            if ($item->get('hide') == 1) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Return the definition of the properties of this model.
-     *
-     * @return array
-     */
-    protected static function define_properties(): array {
+    public function export(context $context): array {
         return [
-            'todotext' => [
-                'type' => PARAM_TEXT,
-            ],
-            'duedate' => [
-                'type' => PARAM_INT,
-                'required' => false,
-                'default' => null,
-                'null' => NULL_ALLOWED,
-            ],
-            'duedateformatted' => [
-                'type' => PARAM_TEXT,
-                'required' => false,
-                'default' => null,
-                'null' => NULL_ALLOWED,
-            ],
-            'overdue' => [
-                'type' => PARAM_BOOL,
-                'default' => false,
-            ],
-            'today' => [
-                'type' => PARAM_BOOL,
-                'default' => false,
-            ],
-            'done' => [
-                'type' => PARAM_BOOL,
-                'default' => false,
-            ],
-            'pin' => [
-                'type' => PARAM_BOOL,
-                'default' => false,
-            ],
-            'hide' => [
-                'type' => PARAM_BOOL,
-                'default' => false,
-            ],
-            'id' => [
-                'type' => PARAM_INT,
-                'required' => false,
-                'default' => null,
-                'null' => NULL_ALLOWED,
-            ],
-            'groupid' => [
-                'type' => PARAM_INT,
-                'required' => false,
-                'default' => 0,
-            ],
+            'id' => $this->id,
+            'todotext' => format_string($this->todotext, true, ['context' => $context, 'escape' => false]),
+            'done' => $this->done,
+            'pin' => $this->pin,
+            'hide' => $this->hide,
+            'duedate' => $this->duedate,
+            'groupid' => $this->groupid,
         ];
-    }
-
-    /**
-     * Delete completed items.
-     *
-     * @param int|null $groupid Filter for group.
-     */
-    public static function delete_completed_items(): void {
-        global $USER, $DB;
-
-        $params = [
-            'usermodified' => $USER->id,
-            'done' => 1,
-        ];
-
-        $DB->delete_records('block_todo', $params);
     }
 }

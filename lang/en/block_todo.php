@@ -20,6 +20,7 @@
  * @package     block_todo
  * @category    string
  * @copyright   2018 David Mudrák <david@moodle.com>
+ * @author      2023 David Woloszyn <david.woloszyn@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['additem'] = 'Add item';
 $string['confirmdeletecompleted'] = 'Are you sure you want to delete your completed items?';
-$string['confirmdeletesingle'] = 'Are you sure you want to delete <strong>{$a}</strong>?';
+$string['confirmdeletesingle'] = 'Are you sure you want to delete "{$a}"?';
 $string['deletecompleted'] = 'Delete completed items';
 $string['deleteitem'] = 'Delete item';
 $string['duedate'] = 'Due date';

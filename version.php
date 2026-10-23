@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'block_todo';
-$plugin->release = '2.2.1';
-$plugin->version = 2025103000;
-$plugin->requires = 2023100900;
+$plugin->release = '2.3.0';
+$plugin->version = 2026102100;
+$plugin->requires = 2026100500; // Moodle 5.3 (React components and the design system).
 $plugin->maturity = MATURITY_STABLE;

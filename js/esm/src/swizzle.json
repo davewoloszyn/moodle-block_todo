@@ -1,0 +1,42 @@
+{
+  "App": {
+    "eject": "risky",
+    "wrap": "risky"
+  },
+  "ConfirmModal": {
+    "eject": "risky",
+    "wrap": "risky"
+  },
+  "DueDate": {
+    "eject": "risky",
+    "wrap": "risky"
+  },
+  "Header": {
+    "eject": "risky",
+    "wrap": "risky"
+  },
+  "ItemActions": {
+    "eject": "risky",
+    "wrap": "risky"
+  },
+  "List": {
+    "eject": "risky",
+    "wrap": "risky"
+  },
+  "ListItem": {
+    "eject": "risky",
+    "wrap": "risky"
+  },
+  "Modal": {
+    "eject": "risky",
+    "wrap": "risky"
+  },
+  "PinnedItem": {
+    "eject": "risky",
+    "wrap": "risky"
+  },
+  "ItemModal": {
+    "eject": "risky",
+    "wrap": "risky"
+  }
+}

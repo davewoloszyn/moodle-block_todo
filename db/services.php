@@ -20,6 +20,7 @@
  * @package     block_todo
  * @category    external
  * @copyright   2018 David Mudrák <david@moodle.com>
+ * @author      2023 David Woloszyn <david.woloszyn@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,86 +28,55 @@ defined('MOODLE_INTERNAL') || die();
 
 $functions = [
     'block_todo_add_item' => [
-        'classname' => 'block_todo\external\api',
-        'methodname' => 'add_item',
-        'classpath' => '',
+        'classname' => 'block_todo\external\add_item',
         'description' => 'Adds a new item to the user\'s todo list',
         'type' => 'write',
         'capabilities' => 'block/todo:myaddinstance',
         'loginrequired' => true,
         'ajax' => true,
     ],
-
     'block_todo_toggle_item' => [
-        'classname' => 'block_todo\external\api',
-        'methodname' => 'toggle_item',
-        'classpath' => '',
+        'classname' => 'block_todo\external\toggle_item',
         'description' => 'Toggles the done status of the given item',
         'type' => 'write',
         'capabilities' => 'block/todo:myaddinstance',
         'loginrequired' => true,
         'ajax' => true,
     ],
-
     'block_todo_delete_item' => [
-        'classname' => 'block_todo\external\api',
-        'methodname' => 'delete_item',
-        'classpath' => '',
+        'classname' => 'block_todo\external\delete_item',
         'description' => 'Removes the given item from the todo list',
         'type' => 'write',
         'capabilities' => 'block/todo:myaddinstance',
         'loginrequired' => true,
         'ajax' => true,
     ],
-
     'block_todo_edit_item' => [
-        'classname' => 'block_todo\external\api',
-        'methodname' => 'edit_item',
-        'classpath' => '',
+        'classname' => 'block_todo\external\edit_item',
         'description' => 'Edit the given item in the todo list',
         'type' => 'write',
         'capabilities' => 'block/todo:myaddinstance',
         'loginrequired' => true,
         'ajax' => true,
     ],
-
     'block_todo_pin_item' => [
-        'classname' => 'block_todo\external\api',
-        'methodname' => 'pin_item',
-        'classpath' => '',
+        'classname' => 'block_todo\external\pin_item',
         'description' => 'Toggles the pinned status of the given item',
         'type' => 'write',
         'capabilities' => 'block/todo:myaddinstance',
         'loginrequired' => true,
         'ajax' => true,
     ],
-
     'block_todo_hide_done_items' => [
-        'classname' => 'block_todo\external\api',
-        'methodname' => 'hide_done_items',
-        'classpath' => '',
+        'classname' => 'block_todo\external\hide_done_items',
         'description' => 'Toggles the hidden status of done items',
         'type' => 'write',
         'capabilities' => 'block/todo:myaddinstance',
         'loginrequired' => true,
         'ajax' => true,
     ],
-
-    'block_todo_group_items' => [
-        'classname' => 'block_todo\external\api',
-        'methodname' => 'group_items',
-        'classpath' => '',
-        'description' => 'Group items together with the same group id',
-        'type' => 'write',
-        'capabilities' => 'block/todo:myaddinstance',
-        'loginrequired' => true,
-        'ajax' => true,
-    ],
-
     'block_todo_delete_completed' => [
-        'classname' => 'block_todo\external\api',
-        'methodname' => 'delete_completed',
-        'classpath' => '',
+        'classname' => 'block_todo\external\delete_completed',
         'description' => 'Delete all completed items',
         'type' => 'write',
         'capabilities' => 'block/todo:myaddinstance',

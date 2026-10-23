@@ -1,0 +1,7 @@
+import{useEffect as y,useState as c}from"react";import{Dropdown as v,DropdownItemAction as a,DropdownItemDivider as I}from"@moodlehq/design-system";import{getStrings as h}from"@moodle/lms/core/stringUtils";import{jsx as e,jsxs as N}from"react/jsx-runtime";/**
+ * The actions menu (pin, edit, delete) shown on each item.
+ *
+ * @module     block_todo/ItemActions
+ * @copyright  2026 David Woloszyn <david.woloszyn@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */function D({item:i,onPin:s,onEdit:l,onDelete:m}){const[p,r]=c(!1),[n,d]=c({actions:"",pin:"",unpin:"",edit:"",remove:""});y(()=>{h([{key:"actions",component:"core"},{key:"pin",component:"block_todo"},{key:"unpin",component:"block_todo"},{key:"edit",component:"core"},{key:"delete",component:"core"}]).then(([t,f,u,b,k])=>{d({actions:t,pin:f,unpin:u,edit:b,remove:k})})},[]);const o=t=>{r(!1),t(i)};return N(v,{className:"ms-auto",label:n.actions,iconOnly:!0,appearance:"subtle",size:"md",placement:"bottom-end",startIcon:e("i",{className:"fa fa-ellipsis-vertical","aria-hidden":"true"}),open:p,onOpenChange:r,children:[e(a,{label:i.pin?n.unpin:n.pin,startIcon:e("i",{className:"fa fa-thumbtack","aria-hidden":"true"}),onClick:()=>o(s)}),e(a,{label:n.edit,startIcon:e("i",{className:"fa fa-pen","aria-hidden":"true"}),onClick:()=>o(l)}),e(I,{}),e(a,{label:n.remove,variant:"danger",startIcon:e("i",{className:"fa fa-trash-can","aria-hidden":"true"}),onClick:()=>o(m)})]})}var C=D;export{C as default};

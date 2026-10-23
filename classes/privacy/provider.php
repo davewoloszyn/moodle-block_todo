@@ -20,6 +20,7 @@
  * @package     block_todo
  * @category    privacy
  * @copyright   2018 David Mudrák <david@moodle.com>
+ * @author      2023 David Woloszyn <david.woloszyn@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -37,6 +38,7 @@ use core_privacy\local\request\writer;
  * Privacy API implementation for the My ToDo list plugin.
  *
  * @copyright  2018 David Mudrák <david@moodle.com>
+ * @author     2023 David Woloszyn <david.woloszyn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
@@ -113,7 +115,7 @@ class provider implements
             unset($item->id);
             $item->timecreated = transform::datetime($item->timecreated);
             $item->timemodified = transform::datetime($item->timemodified);
-            $item->duedate = transform::datetime($item->duedate);
+            $item->duedate = $item->duedate ? transform::datetime($item->duedate) : null;
             $item->done = transform::yesno($item->done);
             $item->pin = transform::yesno($item->pin);
             $item->hide = transform::yesno($item->hide);

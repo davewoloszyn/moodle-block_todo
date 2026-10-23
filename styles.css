@@ -1,63 +1,127 @@
+.block_todo .todo-item {
+    display: flex;
+    align-items: center;
+    padding: var(--mds-spacing-md);
+}
+
+/* The done/not done toggle: a bare icon at heading size, in the item's own text colour. */
+.block_todo .toggle-done,
+.block_todo .toggle-done:hover,
+.block_todo .toggle-done:focus {
+    padding: 0;
+    margin-right: var(--mds-spacing-xs);
+    font-size: var(--mds-typography-font-size-1-25);
+    line-height: 1.2;
+    color: inherit;
+}
+
+.block_todo .pinned-duedate {
+    font-size: var(--mds-typography-font-size-0-875);
+    font-weight: var(--mds-typography-font-weight-bold);
+}
+
 .block_todo .pinned-item {
-    background-color: #fff3e1;
-    border: 1px solid #ffb829;
+    background-color: var(--mds-bg-feedback-warning-light);
+    border: 1px solid var(--mds-border-feedback-warning);
 }
 
 .block_todo .h6 {
-    font-weight: bold;
-}
-
-.block_todo .badge {
-    color: #fff;
+    font-weight: var(--mds-typography-font-weight-bold);
 }
 
 .block_todo .done {
     text-decoration: line-through;
 }
 
-.block_todo .group-icon-0,
-#block_todo_groups .group-icon-0 {
+.block_todo .group-icon-0 {
     color: #686868;
 }
 
-.block_todo .group-icon-1,
-#block_todo_groups .group-icon-1 {
+.block_todo .group-icon-1 {
     color: #ffbb75;
 }
 
-.block_todo .group-icon-2,
-#block_todo_groups .group-icon-2 {
+.block_todo .group-icon-2 {
     color: #56ceff;
 }
 
-.block_todo .group-icon-3,
-#block_todo_groups .group-icon-3 {
+.block_todo .group-icon-3 {
     color: #5dc891;
 }
 
-.block_todo .group-icon-4,
-#block_todo_groups .group-icon-4 {
+.block_todo .group-icon-4 {
     color: #e0a9fd;
 }
 
-.block_todo .group-icon-5,
-#block_todo_groups .group-icon-5 {
+.block_todo .group-icon-5 {
     color: #ff7d87;
 }
 
-#block-region-side-pre .block_todo .hideable {
-    display: none;
+.block_todo .action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--mds-spacing-xxs);
 }
 
-#block-region-side-pre .block_todo .icon {
-    margin-right: 0;
+.block_todo .action-buttons i {
+    margin: var(--mds-spacing-xxs);
 }
 
-#block-region-side-pre .block_todo .btn-group {
-    display: inline;
-    margin-left: 0.5rem;
+.block_todo .action-buttons .mds-btn.active {
+    background-color: var(--mds-bg-interactive-secondary-disabled);
 }
 
-#block-region-side-pre .block_todo .btn-group .btn {
-    border-radius: 0.5rem;
+/* The design system draws every button icon at --mds-icons-xs (0.75rem).
+   Use the next size up (--mds-icons-sm, 1rem) for our icon buttons. */
+.block_todo .action-buttons .mds-btn {
+    --mds-icons-xs: var(--mds-icons-sm);
+}
+
+.block_todo-modal {
+    width: min(500px, calc(100% - 2rem));
+    border: 0;
+    border-radius: var(--mds-border-radius-sm);
+    box-shadow: var(--bs-box-shadow);
+}
+
+.block_todo-modal::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+/* Outside the side drawer, put the add button and the action buttons on one row:
+   add button on the left, action buttons pushed to the right (even if the row wraps). */
+.block_todo .button-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--mds-spacing-xs);
+}
+
+.block_todo .button-header .action-buttons {
+    margin-left: auto;
+}
+
+/* Side drawer appearance customisations */
+#block-region-side-pre .block_todo .button-header {
+    display: block;
+}
+
+#block-region-side-pre .block_todo .button-header .add-button {
+    margin-bottom: var(--mds-spacing-xs);
+}
+
+#block-region-side-pre .block_todo .button-header .action-buttons {
+    margin-left: 0;
+}
+
+/* The design system draws dropdown menus and tooltips in a floating layer at the end of the page,
+   outside the block, with no z-index. In the block drawer (z-index up to 1031) they would be hidden
+   behind the drawer, so lift them to Bootstrap's popover (1070) and tooltip (1080) levels.
+   These rules cannot be scoped to .block_todo, as the floating layers are not inside the block. */
+.mds-dropdown-menu {
+    z-index: 1070;
+}
+
+.mds-tooltip__bubble {
+    z-index: 1080;
 }

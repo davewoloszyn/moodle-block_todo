@@ -49,50 +49,30 @@ class block_todo extends block_base {
      * @return stdClass The block contents.
      */
     public function get_content(): \stdClass {
-        global $OUTPUT;
+        global $USER;
 
         if ($this->content !== null) {
             return $this->content;
         }
 
         if (empty($this->instance)) {
-            $this->content = '';
+            $this->content = new stdClass();
             return $this->content;
         }
 
-        $this->content = new stdClass();
+        $manager = new block_todo\manager($USER->id);
 
-        // Get items for the list.
-        $items = block_todo\item::get_my_todo_items();
-        // Determine if there are hidden items. If so, we respect that when displaying the list.
-        $includehidden = block_todo\item::has_hidden_items($items);
-        // Get group button data.
-        $activegroups = block_todo\item::get_group_button_data($items, $includehidden, 0);
-
-        // Prepare the exporter of the todo items list.
-        $list = new block_todo\external\list_exporter([
-            'instanceid' => $this->instance->id,
-        ], [
-            'items' => $items,
-            'context' => $this->context,
-            'activegroups' => $activegroups,
-            'currentgroup' => 0,
-        ]);
-
-        // Render the list using a template and exported data.
-        $this->content->text = $OUTPUT->render_from_template('block_todo/content', $list->export($OUTPUT));
+        $this->content = (object) [
+            'text' => \core\output\html_writer::react_component(
+                '@moodle/lms/block_todo/App',
+                [
+                    'instanceid' => $this->instance->id,
+                    'items' => $manager->export_items($this->context),
+                ],
+            ),
+        ];
 
         return $this->content;
-    }
-
-    /**
-     * Gets Javascript required for the widget functionality.
-     */
-    public function get_required_javascript(): void {
-        parent::get_required_javascript();
-        $this->page->requires->js_call_amd('block_todo/control', 'init', [
-            'instanceid' => $this->instance->id
-        ]);
     }
 
     /**

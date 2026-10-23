@@ -45,7 +45,7 @@ abstract class base extends external_api {
 
         $context = context_user::instance($USER->id);
         self::validate_context($context);
-        require_capability('block/todo:myaddinstance', $context);
+        require_capability('block/todo:manageitems', $context);
 
         return new manager($USER->id);
     }

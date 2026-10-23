@@ -84,7 +84,7 @@ final class services_test extends \core_external\tests\externallib_testcase {
     public function test_add_item_no_permission(): void {
         $userroles = get_archetype_roles('user');
         $authrole = array_pop($userroles);
-        unassign_capability('block/todo:myaddinstance', $authrole->id);
+        unassign_capability('block/todo:manageitems', $authrole->id);
 
         $this->expectException(\required_capability_exception::class);
         add_item::execute('This should throw required_capability_exception');

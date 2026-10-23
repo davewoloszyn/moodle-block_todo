@@ -36,4 +36,25 @@ $capabilities = [
         ],
         'clonepermissionsfrom' => 'moodle/my:manageblocks',
     ],
+
+    // Allows users to add a new ToDo block to other pages, such as course pages.
+    'block/todo:addinstance' => [
+        'riskbitmask' => RISK_SPAM | RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_BLOCK,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'moodle/site:manageblocks',
+    ],
+
+    // Allows users to manage the items in their own ToDo list, wherever the block is shown.
+    'block/todo:manageitems' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_USER,
+        'archetypes' => [
+            'user' => CAP_ALLOW,
+        ],
+    ],
 ];

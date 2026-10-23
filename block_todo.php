@@ -55,22 +55,33 @@ class block_todo extends block_base {
             return $this->content;
         }
 
+        $this->content = new stdClass();
+
         if (empty($this->instance)) {
-            $this->content = new stdClass();
+            return $this->content;
+        }
+
+        // The block always shows the current user's own list, wherever it is placed. There is no list to show to
+        // guests or users who are not logged in, nor to users who cannot manage their items. With no content, the
+        // block is not displayed.
+        if (!isloggedin() || isguestuser()) {
+            return $this->content;
+        }
+        $usercontext = context_user::instance($USER->id);
+        if (!has_capability('block/todo:manageitems', $usercontext)) {
             return $this->content;
         }
 
         $manager = new block_todo\manager($USER->id);
 
-        $this->content = (object) [
-            'text' => \core\output\html_writer::react_component(
-                '@moodle/lms/block_todo/App',
-                [
-                    'instanceid' => $this->instance->id,
-                    'items' => $manager->export_items($this->context),
-                ],
-            ),
-        ];
+        $this->content->text = \core\output\html_writer::react_component(
+            '@moodle/lms/block_todo/App',
+            [
+                'instanceid' => $this->instance->id,
+                // Format in the user's own context, as the web services do, so items look the same on every page.
+                'items' => $manager->export_items($usercontext),
+            ],
+        );
 
         return $this->content;
     }
@@ -95,8 +106,10 @@ class block_todo extends block_base {
      * @return array Array of pages and permissions.
      */
     public function applicable_formats(): array {
+        // The list is personal, so it can be shown on any page, apart from site administration.
         return [
-            'my' => true,
+            'all' => true,
+            'admin' => false,
         ];
     }
 }

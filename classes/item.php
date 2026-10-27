@@ -40,16 +40,76 @@ class item extends persistent {
     /**
      * Return todo items for the current user.
      *
+     * @param int|null $groupid Filter for group.
      * @return array
      */
-    public static function get_my_todo_items() {
-        global $USER;
+    public static function get_my_todo_items($groupid = null): array {
+        global $USER, $DB;
 
         $params = [
             'usermodified' => $USER->id,
         ];
 
-        return static::get_records($params, 'duedate, timecreated', 'ASC');
+        if ($groupid && $groupid > 0) {
+            $params['groupid'] = $groupid;
+        }
+
+        return static::get_records($params, 'duedate, groupid, timecreated', 'ASC');
+    }
+
+    /**
+     * Get data that will construct the group buttons.
+     *
+     * @param array $items The items to check.
+     * @param bool $includehidden Include hidden items.
+     * @param int $currentgroup The curren group id.
+     * @return array
+     */
+    public static function get_group_button_data(array $items, bool $includehidden, int $currentgroup): array {
+        $activegroups = [];
+        $addedgroups = [];
+        foreach ($items as $item) {
+            if (
+                $item->get('groupid') != 0 &&
+                (($includehidden && $item->get('hide') == 1) || $item->get('hide') != 1)
+            ) {
+                if (!in_array($item->get('groupid'), $addedgroups)) {
+                    $groupdata = [];
+                    $groupdata['groupid'] = $item->get('groupid');
+                    $groupdata['grouptitle'] = get_string('showgroup' . $item->get('groupid'), 'block_todo');
+                    $groupdata['groupicon'] = 'fa-star';
+                    $groupdata['hideonload'] = false;
+                    $activegroups[] = $groupdata;
+                    // Mark as added.
+                    $addedgroups[] = $item->get('groupid');
+                }
+            }
+        }
+        // Add a reset/clear button if we are viewing a group on the page.
+        if (!empty($activegroups)) {
+            $groupdata = [];
+            $groupdata['groupid'] = 0;
+            $groupdata['grouptitle'] = get_string('showgroup0', 'block_todo');
+            $groupdata['groupicon'] = 'fa-times';
+            $groupdata['hideonload'] = $currentgroup == 0;
+            $activegroups[] = $groupdata;
+        }
+        return $activegroups;
+    }
+
+    /**
+     * Does the list of items contain any hidden items.
+     *
+     * @param array $items The items to check.
+     * @return bool
+     */
+    public static function has_hidden_items($items): bool {
+        foreach ($items as $item) {
+            if ($item->get('hide') == 1) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -57,7 +117,7 @@ class item extends persistent {
      *
      * @return array
      */
-    protected static function define_properties() {
+    protected static function define_properties(): array {
         return [
             'todotext' => [
                 'type' => PARAM_TEXT,
@@ -100,6 +160,27 @@ class item extends persistent {
                 'default' => null,
                 'null' => NULL_ALLOWED,
             ],
+            'groupid' => [
+                'type' => PARAM_INT,
+                'required' => false,
+                'default' => 0,
+            ],
         ];
+    }
+
+    /**
+     * Delete completed items.
+     *
+     * @param int|null $groupid Filter for group.
+     */
+    public static function delete_completed_items(): void {
+        global $USER, $DB;
+
+        $params = [
+            'usermodified' => $USER->id,
+            'done' => 1,
+        ];
+
+        $DB->delete_records('block_todo', $params);
     }
 }

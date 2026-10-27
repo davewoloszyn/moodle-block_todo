@@ -27,8 +27,19 @@
         <label for="block_todo_add_text">{{#str}} itemname, block_todo {{/str}}</label>
         <input id="block_todo_add_text" type="text" name="block_todo_add_text" class="form-control block_todo_add_text" maxlength="125" data-control="addtext" required>
     </div>
-    <div>
+    <div class="mb-3">
         <label for="block_todo_add_duedate">{{#str}} duedate, block_todo {{/str}}</label>
         <input id="block_todo_add_duedate" class="form-control block_todo_add_duedate" name="block_todo_add_duedate" type="date">
+    </div>
+    <div id="block_todo_groups">
+        <div>{{#str}} group, block_todo {{/str}}</div>
+        {{#groups}}
+        <div>
+            <input type="radio" id="block_todo_group_{{groupid}}" name="block_todo_group" value="{{groupid}}" />
+            <label for="block_todo_group_{{groupid}}">
+                <i class="fa {{groupicon}} group-icon group-icon-{{groupid}}"></i> {{groupname}}
+            </label>
+        </div>
+        {{/groups}}
     </div>
 </form>

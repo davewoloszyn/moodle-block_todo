@@ -48,6 +48,8 @@ trait hide_done_items {
         return new external_function_parameters([
             'instanceid' => new external_value(PARAM_INT, 'The instance id'),
             'hide' => new external_value(PARAM_BOOL, 'The hide or not to hide', 0),
+            'includehidden' => new external_value(PARAM_BOOL, 'Include hidden items or not', 0),
+            'currentgroup' => new external_value(PARAM_INT, 'The current group being viewed', 0),
         ]);
     }
 
@@ -56,9 +58,16 @@ trait hide_done_items {
      *
      * @param int $instanceid The instance id.
      * @param bool $hide true to hide, false to show.
+     * @param bool $includehidden Include hidden items.
+     * @param int $currentgroup The current group being viewed.
      * @return string Template HTML.
      */
-    public static function hide_done_items($instanceid, $hide): string {
+    public static function hide_done_items(
+        int $instanceid,
+        bool $hide,
+        bool $includehidden = true,
+        int $currentgroup = 0,
+    ): string {
         global $USER, $PAGE, $DB;
 
         // Validate.
@@ -73,13 +82,17 @@ trait hide_done_items {
         $DB->set_field('block_todo', 'hide', (int) $hide, $params);
 
         // Return an updated list.
-        $items = block_todo\item::get_my_todo_items();
-
+        $items = block_todo\item::get_my_todo_items($currentgroup);
+        // Get group button data.
+        $activegroups = block_todo\item::get_group_button_data($items, $includehidden, $currentgroup);
+        // Prepare the exporter of the todo items list.
         $list = new block_todo\external\list_exporter([
             'instanceid' => $instanceid,
         ], [
             'items' => $items,
             'context' => $context,
+            'activegroups' => $activegroups,
+            'currentgroup' => $currentgroup,
         ]);
 
         $output = $PAGE->get_renderer('core');

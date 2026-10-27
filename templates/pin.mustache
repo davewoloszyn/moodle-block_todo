@@ -24,7 +24,7 @@
     See block_todo/content for data structure.
 }}
 
-<li class="list-group-item d-flex {{#done}}text-muted muted{{/done}} border-warning" style="background-color:#fff3e1" data-item="{{id}}" data-done="{{done}}" data-text="{{todotext}}" data-duedate="{{duedate}}">
+<li class="list-group-item p-3 d-flex {{#done}}text-muted muted{{/done}} pinned-item" data-item="{{id}}" data-done="{{done}}" data-text="{{todotext}}" data-duedate="{{duedate}}" data-groupid="{{groupid}}">
     <div class="h5 mr-1 mb-0" data-control="toggle" role="button" title="{{#str}} toggle, block_todo {{/str}}" aria-label="{{#str}} toggle, block_todo {{/str}}">
         {{#done}}<i class="icon fa fa-check-square" aria-hidden="true"></i>{{/done}}
         {{^done}}<i class="icon fa fa-square-o" aria-hidden="true"></i>{{/done}}
@@ -33,13 +33,18 @@
         <div class="d-none badge badge-secondary {{#overdue}}badge-danger{{/overdue}} {{#today}}badge-success{{/today}}">{{duedateformatted}}</div>
         <div class="d-inline-block">
             {{#duedateformatted}}
-                <div style="font-size:12px;" class="font-weight-bold">
-                    {{#today}}<i class="fa fa-circle text-primary mr-2" title="{{#str}}today, block_todo{{/str}}"></i>{{/today}}
-                    {{#overdue}}<i class="fa fa-circle text-danger mr-2" title="{{#str}}overdue, block_todo{{/str}}"></i>{{/overdue}}
-                    {{duedateformatted}}
-                </div>
+            <div style="font-size:14px;" class="font-weight-bold">
+                {{duedateformatted}}
+                <span class="ms-1">
+                    {{#today}}<span class="badge bg-success">{{#str}}today, block_todo{{/str}}</span>{{/today}}
+                    {{#overdue}}<span class="badge bg-danger">{{#str}}overdue, block_todo{{/str}}</span>{{/overdue}}
+                </span>
+            </div>
             {{/duedateformatted}}
-            {{todotext}}
+            <span class="{{#done}}done{{/done}}">
+                {{#groupid}}<i class="me-1 fa fa-star group-icon group-icon-{{groupid}}"></i>{{/groupid}}
+                {{todotext}}
+            </span>
         </div>
     </div>
     <div data-control="actions">

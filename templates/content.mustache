@@ -60,20 +60,19 @@
                 }
             }
         ],
-        "pinned":[
+        "pinned": [
         ],
-        "hidedone": "1"
+        "hidedone": "1",
+        "activegroups": [
+            {
+                "groupid": "1",
+                "grouptitle": "Show peach group",
+                "groupicon": "fa-star",
+            }
+        ]
     }
 }}
 
 <div data-region="block_todo-instance-{{instanceid}}">
-    <div class="d-flex mb-3" data-control="main">
-        <button class="btn btn-primary mr-auto" type="button" title="{{#str}} additem, block_todo {{/str}}<" data-control="additem">
-            {{#pix}} add, block_todo {{/pix}}{{#str}} additem, block_todo {{/str}}
-        </button>
-        <button class="btn btn-secondary" type="button" title="{{#str}} hidecompleted, block_todo {{/str}}" data-control="hidedone">
-            <i class="fa fa-eye{{^hidedone}}-slash{{/hidedone}}"></i>
-        </button>
-    </div>
    {{>block_todo/list}}
 </div>

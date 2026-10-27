@@ -1,5 +1,12 @@
 # CHANGES #
 
+## 2.2.0 ##
+
+Improvements:
+
+* Item groups
+* Bulk delete completed items
+
 ## 2.1.0 ##
 
 Bug fixes:

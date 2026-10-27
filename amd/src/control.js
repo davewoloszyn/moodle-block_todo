@@ -87,6 +87,9 @@ define([
         self.main = self.region.find('[data-control="main"]');
         self.itemsList = self.region.find('.list-wrapper');
         self.currentHideDone = self.region.find('[data-hidedone]');
+        self.currentGroup = self.region.find('[data-currentgroup]');
+        self.hideDoneButton = self.region.find('[data-control="hidedone"]');
+        self.groupButtons = self.region.find('[data-control="hidedone"]');
 
         self.initFeatures();
     };
@@ -123,7 +126,8 @@ define([
             var id = $(e.currentTarget).closest('[data-item]').attr('data-item');
             var text = $(e.currentTarget).closest('[data-item]').attr('data-text');
             var duedate = $(e.currentTarget).closest('[data-item]').attr('data-duedate');
-            self.editItem(e, id, text, duedate);
+            var groupid = $(e.currentTarget).closest('[data-item]').attr('data-groupid');
+            self.editItem(e, id, text, duedate, groupid);
         });
         // Pin item.
         self.itemsList.on('click', '[data-control="pin"]', function(e) {
@@ -137,10 +141,35 @@ define([
                 self.hideDoneItems(currentlyHidden);
             }
         });
+        // Group items.
+        self.main.on('click', '[data-control="group"]', function(e) {
+            var groupid = $(e.currentTarget).find('[data-groupid]').attr('data-groupid');
+            self.groupItems(groupid);
+        });
+        // Delete completed items.
+        self.itemsList.on('click', '[data-control="deletedone"]', function(e) {
+            self.deleteCompleted(e);
+        });
     };
 
+    /**
+     * Are there hidden items?
+     *
+     * @param {jQuery} self
+     * @returns {boolean}
+     */
     const getHiddenState = (self) => {
         return Boolean(parseInt(self.currentHideDone.attr('data-hidedone')));
+    };
+
+    /**
+     * What is the current group this page is displaying?
+     *
+     * @param {jQuery} self
+     * @returns {number}
+     */
+    const getCurrentGroup = (self) => {
+        return parseInt(self.currentGroup.attr('data-currentgroup'));
     };
 
     /**
@@ -150,15 +179,20 @@ define([
      * @param {Event} e The event
      * @return {Deferred}
      */
-    TodoControl.prototype.addItem = function(e) {
+    TodoControl.prototype.addItem = async function(e) {
         var self = this;
         var trigger = $(e.currentTarget);
+        var groups = await getGroupList();
+
+        const args = {
+            groups: groups,
+        };
 
         // Create modal.
         ModalFactory.create({
             type: ModalFactory.types.SAVE_CANCEL,
             title: Str.getString('additem', 'block_todo'),
-            body: Templates.render('block_todo/add'),
+            body: Templates.render('block_todo/add', args),
         }, trigger)
         .done(function(modal) {
 
@@ -166,6 +200,7 @@ define([
                 var modalBody = modal.getBody();
                 var text = $.trim(modalBody.find('.block_todo_add_text').val());
                 var duedate = dateToTimestamp(modalBody.find('.block_todo_add_duedate').val());
+                var groupid = parseInt(modalBody.find('input[name="block_todo_group"]:checked').val()) || 0;
 
                 // Ensure there is a text value.
                 if (!text) {
@@ -180,6 +215,9 @@ define([
                         instanceid: instanceid,
                         todotext: text,
                         duedate: duedate,
+                        groupid: groupid,
+                        includehidden: !getHiddenState(self),
+                        currentgroup: getCurrentGroup(self)
                     }
 
                 }])[0].fail(function(reason) {
@@ -226,7 +264,9 @@ define([
             args: {
                 instanceid: instanceid,
                 id: id,
-                hide: getHiddenState(self)
+                hide: getHiddenState(self),
+                includehidden: !getHiddenState(self),
+                currentgroup: getCurrentGroup(self)
             }
 
         }])[0].fail(function(reason) {
@@ -246,12 +286,13 @@ define([
      *
      * @method
      * @param {Event} e The event
-     * @param {number} id The event
-     * @param {string} text The event
-     * @param {number} duedate The event
+     * @param {number} id The item id
+     * @param {string} text The text
+     * @param {number} duedate The due date
+     * @param {number} groupid The group id
      * @return {Deferred}
      */
-    TodoControl.prototype.editItem = function(e, id, text, duedate) {
+    TodoControl.prototype.editItem = async function(e, id, text, duedate, groupid) {
         var self = this;
         var trigger = $(e.currentTarget);
 
@@ -260,10 +301,15 @@ define([
             return $.Deferred().resolve();
         }
 
+        var groups = await getGroupList(groupid);
+
         const args = {
             id: id,
             text: text,
-            duedate: null
+            duedate: null,
+            groups: groups,
+            includehidden: !getHiddenState(self),
+            currentgroup: getCurrentGroup(self)
         };
 
         if (duedate) {
@@ -283,6 +329,7 @@ define([
                 var modalBody = modal.getBody();
                 var newText = $.trim(modalBody.find('.block_todo_edit_text').val());
                 var newDuedate = dateToTimestamp(modalBody.find('.block_todo_edit_duedate').val());
+                var newGroupId = parseInt(modalBody.find('input[name="block_todo_group"]:checked').val()) || 0;
 
                 // Ensure there is a text value.
                 if (!newText) {
@@ -298,6 +345,9 @@ define([
                         id: id,
                         todotext: newText,
                         duedate: newDuedate,
+                        groupid: newGroupId,
+                        includehidden: !getHiddenState(self),
+                        currentgroup: getCurrentGroup(self)
                     }
 
                 }])[0].fail(function(reason) {
@@ -330,7 +380,7 @@ define([
      * @method
      * @param {Event} e The event
      * @param {number} id The item id
-     * @param {string} text The event
+     * @param {string} text The text
      * @return {Deferred}
      */
     TodoControl.prototype.deleteItem = function(e, id, text) {
@@ -346,7 +396,7 @@ define([
         ModalFactory.create({
             type: ModalFactory.types.SAVE_CANCEL,
             title: Str.getString('deleteitem', 'block_todo'),
-            body: 'Are you sure you want to delete <strong>' + text + '</strong>?',
+            body: Str.getString('confirmdeletesingle', 'block_todo', text),
         }, trigger)
         .done(function(modal) {
 
@@ -357,11 +407,67 @@ define([
                     methodname: 'block_todo_delete_item',
                     args: {
                         instanceid: instanceid,
-                        id: id
+                        id: id,
+                        includehidden: !getHiddenState(self),
+                        currentgroup: getCurrentGroup(self)
                     }
 
                 }])[0].fail(function(reason) {
                     Log.error('block_todo/control: unable to delete the item');
+                    Log.debug(reason);
+                    return $.Deferred().reject();
+
+                }).then(function(response) {
+                    self.itemsList.replaceWith(response);
+                    init(instanceid);
+                    return $.Deferred().resolve();
+                });
+            });
+
+            // Handle hidden event.
+            modal.getRoot().on(ModalEvents.hidden, function() {
+                // Destroy when hidden.
+                modal.destroy();
+            });
+
+            // Show the modal.
+            modal.show();
+        });
+        return $.Deferred().resolve();
+    };
+
+/**
+     * Delete all completed items.
+     *
+     * @method
+     * @param {Event} e The event
+     * @return {Deferred}
+     */
+    TodoControl.prototype.deleteCompleted = function(e) {
+        var self = this;
+        var trigger = $(e.currentTarget);
+
+        // Create modal.
+        ModalFactory.create({
+            type: ModalFactory.types.SAVE_CANCEL,
+            title: Str.getString('deletecompleted', 'block_todo'),
+            body: Str.getString('confirmdeletecompleted', 'block_todo'),
+        }, trigger)
+        .done(function(modal) {
+
+            modal.setSaveButtonText('Confirm');
+            modal.getRoot().on(ModalEvents.save, function() {
+
+                return Ajax.call([{
+                    methodname: 'block_todo_delete_completed',
+                    args: {
+                        instanceid: instanceid,
+                        includehidden: !getHiddenState(self),
+                        currentgroup: getCurrentGroup(self)
+                    }
+
+                }])[0].fail(function(reason) {
+                    Log.error('block_todo/control: unable to delete completed items');
                     Log.debug(reason);
                     return $.Deferred().reject();
 
@@ -403,7 +509,9 @@ define([
             methodname: 'block_todo_pin_item',
             args: {
                 instanceid: instanceid,
-                id: id
+                id: id,
+                includehidden: !getHiddenState(self),
+                currentgroup: getCurrentGroup(self)
             }
 
         }])[0].fail(function(reason) {
@@ -419,7 +527,7 @@ define([
     };
 
     /**
-     * Toggle the hide status of the given items
+     * Toggle the hide status of the given items.
      *
      * @method
      * @param {boolean} hide To current hidden state (true means hidden).
@@ -435,7 +543,9 @@ define([
             methodname: 'block_todo_hide_done_items',
             args: {
                 instanceid: instanceid,
-                hide: hide
+                hide: hide,
+                includehidden: false,
+                currentgroup: getCurrentGroup(self)
             }
 
         }])[0].fail(function(reason) {
@@ -445,9 +555,94 @@ define([
 
         }).then(function(response) {
             self.itemsList.replaceWith(response);
+            // Toggle the icon.
+            if (getHiddenState(self)) {
+                self.hideDoneButton.find('i').addClass('fa-eye-slash');
+                self.hideDoneButton.find('i').removeClass('fa-eye');
+            } else {
+                self.hideDoneButton.find('i').addClass('fa-eye');
+                self.hideDoneButton.find('i').removeClass('fa-eye-slash');
+            }
             init(instanceid);
             return $.Deferred().resolve();
         });
+    };
+
+    /**
+     * Group items together based on provided group id.
+     *
+     * @method
+     * @param {number} groupid The group id to use.
+     * @return {Deferred}
+     */
+    TodoControl.prototype.groupItems = function(groupid) {
+        var self = this;
+
+        return Ajax.call([{
+            methodname: 'block_todo_group_items',
+            args: {
+                instanceid: instanceid,
+                groupid: groupid,
+                includehidden: !getHiddenState(self),
+            }
+
+        }])[0].fail(function(reason) {
+            Log.error('block_todo/control: unable to group the items');
+            Log.debug(reason);
+            return $.Deferred().reject();
+
+        }).then(function(response) {
+            self.itemsList.replaceWith(response);
+            init(instanceid);
+            return $.Deferred().resolve();
+        });
+    };
+
+    /**
+     * Get group list.
+     *
+     * @param {number|null} selected groupid to use as the selection.
+     * @returns {array}
+     */
+    const getGroupList = async(selected = null) => {
+        return [
+            {
+                groupid: 0,
+                groupname: await Str.getString('labelgroup0', 'block_todo'),
+                groupicon: '',
+                selected: selected == 0,
+            },
+            {
+                groupid: 1,
+                groupname: await Str.getString('labelgroup1', 'block_todo'),
+                groupicon: 'fa-star',
+                selected: selected == 1,
+            },
+            {
+                groupid: 2,
+                groupname: await Str.getString('labelgroup2', 'block_todo'),
+                groupicon: 'fa-star',
+                selected: selected == 2,
+            },
+            {
+                groupid: 3,
+                groupname: await Str.getString('labelgroup3', 'block_todo'),
+                groupicon: 'fa-star',
+                selected: selected == 3,
+            },
+            {
+                groupid: 4,
+                groupname: await Str.getString('labelgroup4', 'block_todo'),
+                groupicon: 'fa-star',
+                selected: selected == 4,
+            },
+            {
+                groupid: 5,
+                groupname: await Str.getString('labelgroup5', 'block_todo'),
+                groupicon: 'fa-star',
+                selected: selected == 5,
+            },
+        ];
     };
 
     /**

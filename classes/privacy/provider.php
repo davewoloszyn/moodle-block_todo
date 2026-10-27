@@ -30,7 +30,6 @@ defined('MOODLE_INTERNAL') || die();
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\contextlist;
-use core_privacy\local\request\helper;
 use core_privacy\local\request\transform;
 use core_privacy\local\request\writer;
 
@@ -60,6 +59,9 @@ class provider implements
            'todotext' => 'privacy:metadata:db:blocktodo:todotext',
            'duedate' => 'privacy:metadata:db:blocktodo:duedate',
            'done' => 'privacy:metadata:db:blocktodo:done',
+           'pin' => 'privacy:metadata:db:blocktodo:pin',
+           'hide' => 'privacy:metadata:db:blocktodo:hide',
+           'groupid' => 'privacy:metadata:db:blocktodo:groupid',
         ], 'privacy:metadata:db:blocktodo');
 
         return $collection;
@@ -105,13 +107,16 @@ class provider implements
         $user = $contextlist->get_user();
 
         $items = $DB->get_records('block_todo', ['usermodified' => $user->id], 'timecreated DESC',
-            'id, timecreated, timemodified, todotext, duedate, done');
+            'id, timecreated, timemodified, todotext, duedate, done, pin, hide, groupid');
 
         foreach ($items as &$item) {
             unset($item->id);
             $item->timecreated = transform::datetime($item->timecreated);
             $item->timemodified = transform::datetime($item->timemodified);
+            $item->duedate = transform::datetime($item->duedate);
             $item->done = transform::yesno($item->done);
+            $item->pin = transform::yesno($item->pin);
+            $item->hide = transform::yesno($item->hide);
         }
 
         foreach ($contextlist->get_contexts() as $context) {
@@ -128,7 +133,7 @@ class provider implements
     /**
      * Delete personal data for all users in the context.
      *
-     * @param context $context Context to delete personal data from.
+     * @param \context $context Context to delete personal data from.
      */
     public static function _delete_data_for_all_users_in_context(\context $context) {
         global $DB;

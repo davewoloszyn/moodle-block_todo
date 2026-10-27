@@ -70,6 +70,18 @@ class list_exporter extends exporter {
                 'type' => PARAM_BOOL,
                 'optional' => true,
             ],
+            'activegroups' => [
+                'type' => item_exporter::read_properties_definition(),
+                'optional' => true,
+            ],
+            'currentgroup' => [
+                'type' => PARAM_INT,
+                'optional' => true,
+            ],
+            'hascompleteditems' => [
+                'type' => PARAM_BOOL,
+                'optional' => true,
+            ],
         ];
     }
 
@@ -84,6 +96,8 @@ class list_exporter extends exporter {
         return [
             'context' => 'context',
             'items' => 'block_todo\item[]',
+            'activegroups' => 'array[]',
+            'currentgroup' => 'int',
         ];
     }
 
@@ -97,10 +111,9 @@ class list_exporter extends exporter {
         global $USER, $DB;
 
         $hiddenitemsids = [];
-
-        // Group the pinned items together.
         $pinneditems = [];
         $pinneditemsids = [];
+        $donecount = 0;
 
         foreach ($this->related['items'] as $item) {
             if ($item->get('pin')) {
@@ -122,6 +135,9 @@ class list_exporter extends exporter {
             if ((bool) $item->get('hide')) {
                 $hiddenitemsids[] = $item->get('id');
             }
+            if ((bool) $item->get('done')) {
+                $donecount++;
+            }
         }
 
         // Group all other items together.
@@ -132,8 +148,8 @@ class list_exporter extends exporter {
                   FROM {block_todo}
                  WHERE usermodified = :userid
               GROUP BY duedate";
-        $duedates = $DB->get_records_sql($sql, $params);
-        ksort($duedates);
+        $duedates = $DB->get_recordset_sql($sql, $params);
+        //ksort($duedates);
 
         foreach ($duedates as $duedate) {
             $nesteditems = [];
@@ -161,11 +177,14 @@ class list_exporter extends exporter {
                 $items[] = $data;
             }
         }
-
+        $duedates->close();
         return [
             'items' => $items,
             'pinned' => $pinneditems,
-            'hidedone' => (int) !empty($hiddenitemsids),
+            'hidedone' => !empty($hiddenitemsids),
+            'activegroups' => $this->related['activegroups'],
+            'currentgroup' => $this->related['currentgroup'],
+            'hascompleteditems' => $donecount > 0,
         ];
     }
 

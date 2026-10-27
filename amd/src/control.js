@@ -31,8 +31,9 @@ define([
         'core/ajax',
         'core/templates',
         'core/str',
-        'core/modal_factory',
-        'core/modal_events'
+        'core/modal_save_cancel',
+        'core/modal_events',
+        'core/notification'
     ],
     function(
         $,
@@ -40,8 +41,9 @@ define([
         Ajax,
         Templates,
         Str,
-        ModalFactory,
-        ModalEvents
+        ModalSaveCancel,
+        ModalEvents,
+        Notification
     ) {
     'use strict';
 
@@ -189,12 +191,12 @@ define([
         };
 
         // Create modal.
-        ModalFactory.create({
-            type: ModalFactory.types.SAVE_CANCEL,
+        ModalSaveCancel.create({
             title: Str.getString('additem', 'block_todo'),
             body: Templates.render('block_todo/add', args),
-        }, trigger)
-        .done(function(modal) {
+            returnElement: trigger,
+        })
+        .then(function(modal) {
 
             modal.getRoot().on(ModalEvents.save, function(e) {
                 var modalBody = modal.getBody();
@@ -240,7 +242,9 @@ define([
 
             // Show the modal.
             modal.show();
-        });
+            return modal;
+        })
+        .catch(Notification.exception);
         return $.Deferred().resolve();
     };
 
@@ -317,12 +321,12 @@ define([
         }
 
         // Create modal.
-        ModalFactory.create({
-            type: ModalFactory.types.SAVE_CANCEL,
+        ModalSaveCancel.create({
             title: Str.getString('edititem', 'block_todo'),
             body: Templates.render('block_todo/edit', args),
-        }, trigger)
-        .done(function(modal) {
+            returnElement: trigger,
+        })
+        .then(function(modal) {
 
             modal.getRoot().on(ModalEvents.save, function(e) {
 
@@ -370,7 +374,9 @@ define([
 
             // Show the modal.
             modal.show();
-        });
+            return modal;
+        })
+        .catch(Notification.exception);
         return $.Deferred().resolve();
     };
 
@@ -393,12 +399,12 @@ define([
         }
 
         // Create modal.
-        ModalFactory.create({
-            type: ModalFactory.types.SAVE_CANCEL,
+        ModalSaveCancel.create({
             title: Str.getString('deleteitem', 'block_todo'),
             body: Str.getString('confirmdeletesingle', 'block_todo', text),
-        }, trigger)
-        .done(function(modal) {
+            returnElement: trigger,
+        })
+        .then(function(modal) {
 
             modal.setSaveButtonText('Confirm');
             modal.getRoot().on(ModalEvents.save, function() {
@@ -432,7 +438,9 @@ define([
 
             // Show the modal.
             modal.show();
-        });
+            return modal;
+        })
+        .catch(Notification.exception);
         return $.Deferred().resolve();
     };
 
@@ -448,12 +456,12 @@ define([
         var trigger = $(e.currentTarget);
 
         // Create modal.
-        ModalFactory.create({
-            type: ModalFactory.types.SAVE_CANCEL,
+        ModalSaveCancel.create({
             title: Str.getString('deletecompleted', 'block_todo'),
             body: Str.getString('confirmdeletecompleted', 'block_todo'),
-        }, trigger)
-        .done(function(modal) {
+            returnElement: trigger,
+        })
+        .then(function(modal) {
 
             modal.setSaveButtonText('Confirm');
             modal.getRoot().on(ModalEvents.save, function() {
@@ -486,7 +494,9 @@ define([
 
             // Show the modal.
             modal.show();
-        });
+            return modal;
+        })
+        .catch(Notification.exception);
         return $.Deferred().resolve();
     };
 

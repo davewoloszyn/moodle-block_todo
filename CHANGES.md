@@ -1,5 +1,12 @@
 # CHANGES #
 
+## 2.2.1 ##
+
+Changes:
+
+* Removed use of modal factory for compatibility with 5.2
+* Minimum required Moodle version is now 4.3
+
 ## 2.2.0 ##
 
 Improvements:

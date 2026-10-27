@@ -1,5 +1,18 @@
 # CHANGES #
 
+## 2.3.0 ##
+
+Improvements:
+
+* Distinguishable group icon
+* Block can be added to more pages
+* Action menus on items
+
+Technical:
+
+* Converted to React
+* Converted to Non-persistent model structure
+
 ## 2.2.1 ##
 
 Changes:
